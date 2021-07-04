@@ -1,3 +1,4 @@
+pub mod categories;
 mod client;
 mod common;
 mod endpoint;

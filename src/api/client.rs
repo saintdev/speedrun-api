@@ -7,7 +7,8 @@ use url::Url;
 
 use super::error::ApiError;
 
-/// A trait representing a client which can communicate with speedrun.com via REST
+/// A trait representing a client which can communicate with speedrun.com via
+/// REST
 pub trait RestClient {
     /// The error that may occur for this client
     type Error: Error + Send + Sync + 'static;
@@ -28,7 +29,8 @@ pub trait Client: RestClient {
     ) -> Result<Response<Bytes>, ApiError<Self::Error>>;
 }
 
-/// A trait representing an asynchronous client which can communicate with speedrun.com
+/// A trait representing an asynchronous client which can communicate with
+/// speedrun.com
 #[async_trait]
 pub trait AsyncClient: RestClient {
     /// Send a REST query asynchronously

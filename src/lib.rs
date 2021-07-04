@@ -13,7 +13,7 @@ pub mod api;
 pub mod error;
 pub mod types;
 
-pub use client::{SpeedrunApiClient, SpeedrunApiClientAsync, SpeedrunApiBuilder};
+pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 
 //TODO:
 //      - Tests
