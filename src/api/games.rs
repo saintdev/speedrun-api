@@ -325,7 +325,7 @@ impl<'a> GameDerivedGamesBuilder<'a> {
             id: self
                 .id
                 .as_ref()
-                .map(|id| id.clone())
+                .cloned()
                 .ok_or(GameDerivedGamesBuilderError::UninitializedField("id"))?,
             inner,
         })
