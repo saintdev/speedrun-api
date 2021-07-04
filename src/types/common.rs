@@ -15,3 +15,11 @@ pub struct Pagination {
     pub size: usize,
     pub links: Vec<Link>,
 }
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TimingMethod {
+    Realtime,
+    RealtimeNoloads,
+    Ingame,
+}

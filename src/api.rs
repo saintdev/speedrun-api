@@ -3,6 +3,7 @@ mod client;
 mod common;
 mod endpoint;
 mod error;
+pub mod games;
 mod pagination;
 mod query;
 

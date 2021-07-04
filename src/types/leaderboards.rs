@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
-use super::{Link, Run};
+use super::{Link, Run, common::TimingMethod};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -15,18 +15,10 @@ pub struct Leaderboard {
     pub region: Option<String>,
     pub emulators: Option<bool>,
     pub video_only: bool,
-    pub timing: Option<Timing>,
+    pub timing: Option<TimingMethod>,
     pub values: HashMap<String, String>,
     pub runs: Vec<RankedRun>,
     pub links: Vec<Link>,
-}
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum Timing {
-    Realtime,
-    RealtimeNoloads,
-    Ingame,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
