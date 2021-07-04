@@ -11,6 +11,7 @@ mod client;
 
 pub mod api;
 pub mod error;
+pub mod types;
 
 pub use client::{SpeedrunApiClient, SpeedrunApiClientAsync, SpeedrunApiBuilder};
 
@@ -18,5 +19,4 @@ pub use client::{SpeedrunApiClient, SpeedrunApiClientAsync, SpeedrunApiBuilder};
 //      - Tests
 //      - declare_endpoint!() macro?
 //      - Handle embeds?
-//      - Docs
 //      - Endpoint builder errors

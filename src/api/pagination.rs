@@ -1,9 +1,12 @@
 use async_trait::async_trait;
-use futures::{stream::Stream, TryStreamExt};
+use futures::{stream::LocalBoxStream, StreamExt, TryStreamExt};
 use http::{header, Request};
 use serde::de::DeserializeOwned;
 
+use crate::types::Pagination;
+
 use super::{
+    common::Root,
     endpoint::Endpoint,
     query::{self, AsyncQuery, Query},
     ApiError, AsyncClient, Client, RestClient,
@@ -11,45 +14,49 @@ use super::{
 
 // TODO: Use provided "next" link for pagination
 
-const DEFAULT_PAGE_SIZE: usize = 20;
-
 /// Marker trait to indicate that an endpoint is pageable.
 pub trait Pageable {}
 
-/// Represents a paginated endpoint
-#[derive(Debug)]
-pub struct Paged<E> {
-    pub(crate) endpoint: E,
+/// Adapters for paginated endpoints
+pub trait PagedEndpointExt<'a, E> {
+    /// Create an iterator over the results of the paginated endpoint.
+    fn iter<T, C>(&'a self, client: &'a C) -> PagedIter<'a, E, C, T>
+    where
+        C: Client,
+        T: DeserializeOwned;
+
+    /// Retrieves a single page of results for the paginated endpoint.
+    fn single_page(&'a self) -> SinglePageBuilder<'a, E>;
+
+    /// Create an async stream over the results of the paginated endpoint.
+    fn stream<T, C>(&'a self, client: &'a C) -> LocalBoxStream<'a, Result<T, ApiError<C::Error>>>
+    where
+        T: DeserializeOwned + Send + 'static,
+        C: AsyncClient + Sync,
+        E: Sync + Send;
 }
 
-impl<E> Paged<E>
+impl<'a, E> PagedEndpointExt<'a, E> for E
 where
     E: Endpoint + Pageable,
 {
-    /// Create an iterator over the results of the paginated endpoint.
-    pub fn iter<'a, T, C>(&'a self, client: &'a C) -> PagedIter<'a, E, C, T>
+    fn iter<T, C>(&'a self, client: &'a C) -> PagedIter<'a, E, C, T>
     where
-        T: DeserializeOwned,
         C: Client,
+        T: DeserializeOwned,
     {
         PagedIter::new(self, client)
     }
 
-    /// Retrieve a single page of the paginated endpoint.
-    pub fn single_page() -> SinglePageBuilder {
-        SinglePageBuilder::default()
+    fn single_page(&self) -> SinglePageBuilder<'_, E> {
+        SinglePageBuilder::new(self)
     }
 
-    // Convert this to a wrapping type? PagedStream<E>
-    /// Create a async stream over the results of the paginated endpoint.
-    pub fn stream<'a, T, C>(
-        &'a self,
-        client: &'a C,
-    ) -> impl Stream<Item = Result<T, ApiError<C::Error>>> + 'a
+    fn stream<T, C>(&'a self, client: &'a C) -> LocalBoxStream<'_, Result<T, ApiError<C::Error>>>
     where
         T: DeserializeOwned + Send + 'static,
         C: AsyncClient + Sync,
-        E: Sync,
+        E: Sync + Send,
     {
         futures::stream::try_unfold(Some(0), move |state| async move {
             let offset = if let Some(offset) = state {
@@ -57,17 +64,16 @@ where
             } else {
                 return Ok(None);
             };
-            let page = SinglePageBuilder::default().offset(offset).build(self);
-            let data = page.query_async(client).await?;
+            let page = SinglePageBuilder::new(self).offset(offset).build();
+            let (data, pagination) = page.query_async(client).await?;
             if data.is_empty() {
                 Ok::<_, ApiError<C::Error>>(None)
             } else {
-                // FIXME: Dynamic page size
-                let next_state = if data.len() < DEFAULT_PAGE_SIZE {
+                let next_state = if data.len() < pagination.max {
                     None
                 } else {
-                    // FIXME: Dynamic page size
-                    Some(offset + DEFAULT_PAGE_SIZE)
+                    // TODO: Dynamic page size
+                    Some(offset + pagination.max)
                 };
                 Ok(Some((
                     futures::stream::iter(data.into_iter().map(Ok)),
@@ -76,6 +82,7 @@ where
             }
         })
         .try_flatten()
+        .boxed_local()
     }
 }
 
@@ -91,8 +98,8 @@ impl<'a, E, C, T> PagedIter<'a, E, C, T>
 where
     E: Endpoint + Pageable,
 {
-    pub(crate) fn new(paged: &'a Paged<E>, client: &'a C) -> Self {
-        let state = SinglePage::<E>::builder().offset(0).build(paged);
+    pub(crate) fn new(paged: &'a E, client: &'a C) -> Self {
+        let state = SinglePage::<E>::builder(paged).offset(0).build();
         Self {
             client,
             state,
@@ -104,20 +111,34 @@ where
 
 /// Builder for the `SinglePage` endpoint
 #[derive(Debug)]
-pub struct SinglePageBuilder {
+pub struct SinglePageBuilder<'a, E> {
+    inner: &'a E,
     offset: Option<usize>,
     max: Option<usize>,
 }
 
-impl SinglePageBuilder {
+impl<'a, E> SinglePageBuilder<'a, E>
+where
+    E: Pageable + Endpoint,
+{
+    pub fn new(paged: &'a E) -> Self {
+        Self {
+            inner: paged,
+            offset: None,
+            max: None,
+        }
+    }
     /// Request set of elements beginning at `offset`
-    pub fn offset(&mut self, value: usize) -> &mut Self {
-        self.offset = Some(value);
+    pub fn offset<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<usize>>,
+    {
+        self.offset = value.into();
         self
     }
 
     /// Number of elements per request. Valid values are between 1 and 200.
-    pub fn page_size<T>(&mut self, value: T) -> &mut Self
+    pub fn page_size<T>(mut self, value: T) -> Self
     where
         T: Into<Option<usize>>,
     {
@@ -127,23 +148,14 @@ impl SinglePageBuilder {
     }
 
     /// Returns a `SinglePage` that can be querired for a set of elements.
-    pub fn build<'a, E>(&self, paged: &'a Paged<E>) -> SinglePage<'a, E>
+    pub fn build(self) -> SinglePage<'a, E>
     where
         E: Pageable,
     {
         SinglePage {
-            paged,
+            inner: self.inner,
             offset: self.offset.unwrap_or(0),
             max: self.max,
-        }
-    }
-}
-
-impl Default for SinglePageBuilder {
-    fn default() -> Self {
-        Self {
-            offset: None,
-            max: None,
         }
     }
 }
@@ -151,7 +163,7 @@ impl Default for SinglePageBuilder {
 /// Represents a single page of elements.
 #[derive(Debug)]
 pub struct SinglePage<'a, E> {
-    paged: &'a Paged<E>,
+    inner: &'a E,
     offset: usize,
     max: Option<usize>,
 }
@@ -161,12 +173,12 @@ where
     E: Endpoint + Pageable,
 {
     /// Create a builder for a `SinglePage`
-    pub fn builder() -> SinglePageBuilder {
-        SinglePageBuilder::default()
+    pub fn builder(paged: &'a E) -> SinglePageBuilder<'a, E> {
+        SinglePageBuilder::new(paged)
     }
 
     fn page_url<C: RestClient>(&self, client: &C) -> Result<url::Url, ApiError<C::Error>> {
-        let mut url = client.rest_endpoint(&self.paged.endpoint.endpoint())?;
+        let mut url = client.rest_endpoint(&self.inner.endpoint())?;
         {
             let mut pairs = url.query_pairs_mut();
             pairs.append_pair("offset", &format!("{}", &self.offset));
@@ -178,19 +190,19 @@ where
     }
 }
 
-impl<'a, E, T, C> Query<Vec<T>, C> for SinglePage<'a, E>
+impl<'a, E, T, C> Query<(Vec<T>, Pagination), C> for SinglePage<'a, E>
 where
     E: Endpoint + Pageable,
     T: DeserializeOwned,
     C: Client,
 {
-    fn query(&self, client: &C) -> Result<Vec<T>, ApiError<C::Error>> {
+    fn query(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
         let url = self.page_url(client)?;
 
-        let body = self.paged.endpoint.body()?;
+        let body = self.inner.body()?;
 
         let req = Request::builder()
-            .method(self.paged.endpoint.method())
+            .method(self.inner.method())
             .uri(query::url_to_http_uri(url));
 
         let (req, data) = if let Some((mime, data)) = body.as_ref() {
@@ -203,12 +215,14 @@ where
         let rsp = client.rest(req, data)?;
         let status = rsp.status();
 
-        let val = serde_json::from_slice(rsp.body())?;
+        let value = serde_json::from_slice(rsp.body())?;
         if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(val));
+            return Err(ApiError::from_speedrun_api(value));
         }
 
-        serde_json::from_value(val).map_err(ApiError::data_type::<Vec<T>>)
+        serde_json::from_value::<Root<Vec<T>>>(value)
+            .map(|value| (value.data, value.pagination.unwrap_or_default()))
+            .map_err(ApiError::data_type::<Vec<T>>)
     }
 }
 
@@ -226,7 +240,7 @@ where
                 return None;
             }
             self.current_page = match self.state.query(self.client) {
-                Ok(data) => data,
+                Ok((data, _pagination)) => data,
                 Err(err) => return Some(Err(err)),
             };
             self.state.offset += self.current_page.len();
@@ -243,19 +257,19 @@ where
 }
 
 #[async_trait]
-impl<'a, T, C, E> AsyncQuery<Vec<T>, C> for SinglePage<'a, E>
+impl<'a, T, C, E> AsyncQuery<(Vec<T>, Pagination), C> for SinglePage<'a, E>
 where
     T: DeserializeOwned + Send + 'static,
     C: AsyncClient + Sync,
     E: Endpoint + Pageable + Sync,
 {
-    async fn query_async(&self, client: &C) -> Result<Vec<T>, ApiError<C::Error>> {
+    async fn query_async(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
         let url = self.page_url(client)?;
 
-        let body = self.paged.endpoint.body()?;
+        let body = self.inner.body()?;
 
         let req = Request::builder()
-            .method(self.paged.endpoint.method())
+            .method(self.inner.method())
             .uri(query::url_to_http_uri(url));
 
         let (req, data) = if let Some((mime, data)) = body.as_ref() {
@@ -268,11 +282,13 @@ where
         let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
 
-        let val = serde_json::from_slice(rsp.body())?;
+        let value = serde_json::from_slice(rsp.body())?;
         if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(val));
+            return Err(ApiError::from_speedrun_api(value));
         }
 
-        serde_json::from_value(val).map_err(ApiError::data_type::<Vec<T>>)
+        serde_json::from_value::<Root<Vec<T>>>(value)
+            .map(|value| (value.data, value.pagination.unwrap_or_default()))
+            .map_err(ApiError::data_type::<Vec<T>>)
     }
 }

@@ -5,8 +5,8 @@ use http::{header, Method, Request};
 use serde::de::DeserializeOwned;
 
 use super::{
+    common::Root,
     error::BodyError,
-    pagination::{Pageable, Paged},
     query::{self, AsyncQuery, Query},
     ApiError, AsyncClient, Client,
 };
@@ -50,12 +50,14 @@ where
         };
         let rsp = client.rest(req, data)?;
         let status = rsp.status();
-        let v = serde_json::from_slice(rsp.body())?;
+        let value = serde_json::from_slice(rsp.body())?;
         if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(v));
+            return Err(ApiError::from_speedrun_api(value));
         }
 
-        serde_json::from_value::<T>(v).map_err(ApiError::data_type::<T>)
+        serde_json::from_value::<Root<T>>(value)
+            .map(|root| root.data)
+            .map_err(ApiError::data_type::<T>)
     }
 }
 
@@ -82,20 +84,13 @@ where
 
         let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
-        let v = serde_json::from_slice(rsp.body())?;
+        let value = serde_json::from_slice(rsp.body())?;
         if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(v));
+            return Err(ApiError::from_speedrun_api(value));
         }
 
-        serde_json::from_value(v).map_err(ApiError::data_type::<T>)
-    }
-}
-
-pub trait EndpointExt: Endpoint {
-    fn paged(self) -> Paged<Self>
-    where
-        Self: Pageable + Sized,
-    {
-        Paged { endpoint: self }
+        serde_json::from_value::<Root<T>>(value)
+            .map(|value| value.data)
+            .map_err(ApiError::data_type::<T>)
     }
 }
