@@ -44,7 +44,7 @@ pub struct VideoLink {
 pub enum Status {
     New,
     Verified {
-        examiner: String,
+        examiner: Option<String>,
         verify_date: Option<String>,
     },
     Rejected {
