@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use async_trait::async_trait;
 use http::{header, Method, Request};
+use log::debug;
 use serde::de::DeserializeOwned;
 
 use super::{
@@ -16,9 +17,15 @@ pub trait Endpoint {
     fn endpoint(&self) -> Cow<'static, str>;
     fn set_query_parameters(&self, url: &mut url::Url) -> Result<(), BodyError> {
         let old_query: Vec<(String, String)> = url.query_pairs().into_owned().collect();
+        debug!("old query: {:?}", old_query);
         let query = self.query_parameters()?;
-        url.set_query(Some(query.as_ref()));
-        url.query_pairs_mut().extend_pairs(old_query);
+        debug!("new query: {}", query);
+        if !query.is_empty() {
+            url.set_query(Some(query.as_ref()));
+            if !old_query.is_empty() {
+                url.query_pairs_mut().extend_pairs(old_query);
+            }
+        }
         Ok(())
     }
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
