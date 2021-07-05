@@ -26,7 +26,7 @@ impl<'a> Endpoint for Category<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("categories/{}", self.id).into()
+        format!("/categories/{}", self.id).into()
     }
 }
 
@@ -79,7 +79,7 @@ impl<'a> Endpoint for CategoryVariables<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("categories/{}/variables", self.id).into()
+        format!("/categories/{}/variables", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
@@ -115,7 +115,7 @@ impl<'a> Endpoint for CategoryRecords<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("categories/{}/records", self.id).into()
+        format!("/categories/{}/records", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {

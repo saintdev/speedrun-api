@@ -81,7 +81,7 @@ impl<'a> Endpoint for Game<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}", self.id).into()
+        format!("/games/{}", self.id).into()
     }
 }
 
@@ -122,7 +122,7 @@ impl<'a> Endpoint for GameCategories<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}/categories", self.id).into()
+        format!("/games/{}/categories", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
@@ -159,7 +159,7 @@ impl<'a> Endpoint for GameLevels<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}/levels", self.id).into()
+        format!("/games/{}/levels", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
@@ -198,7 +198,7 @@ impl<'a> Endpoint for GameVariables<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}/variables", self.id).into()
+        format!("/games/{}/variables", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
@@ -358,7 +358,7 @@ impl<'a> Endpoint for GameDerivedGames<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}/derived-games", self.id).into()
+        format!("/games/{}/derived-games", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
@@ -399,7 +399,7 @@ impl<'a> Endpoint for GameRecords<'a> {
     }
 
     fn endpoint(&self) -> Cow<'static, str> {
-        format!("games/{}/records", self.id).into()
+        format!("/games/{}/records", self.id).into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {

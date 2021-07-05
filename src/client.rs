@@ -40,7 +40,9 @@ impl api::RestClient for SpeedrunApiClient {
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
         debug!("REST api call {}", endpoint);
-        self.rest_url.join(endpoint).map_err(From::from)
+        self.rest_url
+            .join(endpoint.trim_start_matches("/"))
+            .map_err(From::from)
     }
 }
 
@@ -87,7 +89,7 @@ impl api::RestClient for SpeedrunApiClientAsync {
 
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, api::ApiError<Self::Error>> {
         debug!("REST api call {}", endpoint);
-        self.rest_url.join(endpoint).map_err(From::from)
+        self.rest_url.join(endpoint.trim_start_matches("/")).map_err(From::from)
     }
 }
 
