@@ -4,6 +4,7 @@ mod common;
 mod endpoint;
 mod error;
 pub mod games;
+pub mod guests;
 mod pagination;
 mod query;
 
