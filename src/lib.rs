@@ -21,3 +21,5 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //      - Handle embeds?
 //      - Endpoint builder errors
 //      - ID types/type aliases
+//      - Audit/consolidate sorting enums
+//      - Authentication

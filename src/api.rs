@@ -13,6 +13,10 @@ pub mod games;
 pub mod guests;
 pub mod leaderboards;
 pub mod levels;
+//TODO: Authentacation
+// pub mod notifications;
 mod pagination;
 pub mod platforms;
+//TODO: Authentacation
+// pub mod profile;
 mod query;
