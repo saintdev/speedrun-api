@@ -1,12 +1,12 @@
 use speedrun_api::{
     api::{
-        AsyncQuery,
         leaderboards::{FullGameLeaderboard, IndividualLevelLeaderboard},
+        AsyncQuery,
     },
     error::SpeedrunApiResult,
-    SpeedrunApiBuilder,
     types,
     types::TimingMethod,
+    SpeedrunApiBuilder,
 };
 
 #[tokio::main]

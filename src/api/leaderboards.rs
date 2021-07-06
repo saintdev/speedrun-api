@@ -86,7 +86,7 @@ impl<'a> Endpoint for IndividualLevelLeaderboard<'a> {
             "/leaderboards/{}/level/{}/{}",
             self.game, self.level, self.category
         )
-            .into()
+        .into()
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
