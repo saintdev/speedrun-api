@@ -14,4 +14,5 @@ pub mod guests;
 pub mod leaderboards;
 pub mod levels;
 mod pagination;
+pub mod platforms;
 mod query;

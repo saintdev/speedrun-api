@@ -4,6 +4,7 @@ mod games;
 mod guests;
 mod leaderboards;
 mod levels;
+mod platforms;
 mod runs;
 mod variables;
 
@@ -16,5 +17,6 @@ pub use games::{Asset, Assets, Game, ModeratorRole, Names, Ruleset};
 pub use guests::Guest;
 pub use leaderboards::{Leaderboard, RankedRun};
 pub use levels::Level;
+pub use platforms::Platform;
 pub use runs::{Player, Run, Status, System, Times, VideoLink, Videos};
 pub use variables::{Flags, Scope, Value, Values, Variable};
