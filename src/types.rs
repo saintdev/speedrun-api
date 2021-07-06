@@ -5,6 +5,7 @@ mod guests;
 mod leaderboards;
 mod levels;
 mod platforms;
+mod regions;
 mod runs;
 mod variables;
 
@@ -18,5 +19,6 @@ pub use guests::Guest;
 pub use leaderboards::{Leaderboard, RankedRun};
 pub use levels::Level;
 pub use platforms::Platform;
+pub use regions::Region;
 pub use runs::{Player, Run, Status, System, Times, VideoLink, Videos};
 pub use variables::{Flags, Scope, Value, Values, Variable};

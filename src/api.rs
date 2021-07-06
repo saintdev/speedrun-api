@@ -20,3 +20,4 @@ pub mod platforms;
 //TODO: Authentacation
 // pub mod profile;
 mod query;
+pub mod regions;
