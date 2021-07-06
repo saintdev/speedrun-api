@@ -12,6 +12,6 @@ mod error;
 pub mod games;
 pub mod guests;
 pub mod leaderboards;
+pub mod levels;
 mod pagination;
 mod query;
-

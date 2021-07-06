@@ -20,3 +20,4 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //      - declare_endpoint!() macro?
 //      - Handle embeds?
 //      - Endpoint builder errors
+//      - ID types/type aliases
