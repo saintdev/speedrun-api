@@ -21,3 +21,4 @@ pub mod platforms;
 // pub mod profile;
 mod query;
 pub mod regions;
+pub mod runs;

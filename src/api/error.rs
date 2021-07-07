@@ -13,6 +13,11 @@ pub enum BodyError {
         #[from]
         source: serde_urlencoded::ser::Error,
     },
+    #[error("JSON encode error: {}", source)]
+    Json {
+        #[from]
+        source: serde_json::Error,
+    },
 }
 
 /// Errors that occur from API endpoints.

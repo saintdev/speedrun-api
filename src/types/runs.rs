@@ -29,6 +29,7 @@ pub struct Run {
 #[serde(rename_all = "kebab-case")]
 pub struct Videos {
     pub text: Option<String>,
+    #[serde(default)]
     pub links: Vec<VideoLink>,
 }
 
