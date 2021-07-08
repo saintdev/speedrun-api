@@ -179,6 +179,7 @@ where
 
     fn page_url<C: RestClient>(&self, client: &C) -> Result<url::Url, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.inner.endpoint())?;
+        self.inner.set_query_parameters(&mut url)?;
         {
             let mut pairs = url.query_pairs_mut();
             pairs.append_pair("offset", &format!("{}", &self.offset));
