@@ -22,3 +22,4 @@ pub mod platforms;
 mod query;
 pub mod regions;
 pub mod runs;
+pub mod series;
