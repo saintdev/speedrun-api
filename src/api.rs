@@ -24,3 +24,4 @@ pub mod regions;
 pub mod runs;
 pub mod series;
 pub mod users;
+pub mod variables;

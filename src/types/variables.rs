@@ -26,9 +26,7 @@ pub enum Scope {
     Global,
     FullGame,
     AllLevels,
-    SingleLevel {
-        //TODO
-    },
+    SingleLevel { level: String },
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
