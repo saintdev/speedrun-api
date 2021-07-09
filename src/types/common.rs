@@ -55,3 +55,11 @@ pub struct Asset {
     pub width: i64,
     pub height: i64,
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct Names {
+    pub international: String,
+    pub japanese: Option<String>,
+    pub twitch: Option<String>,
+}

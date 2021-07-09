@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
-use super::{Assets, Link, ModeratorRole, TimingMethod};
+use super::{Assets, Link, ModeratorRole, Names, TimingMethod};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -24,14 +24,6 @@ pub struct Game {
     pub created: Option<String>,
     pub assets: Assets,
     pub links: Vec<Link>,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct Names {
-    pub international: String,
-    pub japanese: Option<String>,
-    pub twitch: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
