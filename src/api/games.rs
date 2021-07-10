@@ -1,10 +1,12 @@
+use std::borrow::Cow;
+
 use http::Method;
 use serde::Serialize;
-use std::borrow::Cow;
 use thiserror::Error;
 
-use super::{endpoint::Endpoint, Direction, Pageable};
-use crate::api::error::BodyError;
+use super::{
+    endpoint::Endpoint, error::BodyError, CategoriesSorting, Direction, Pageable, VariablesSorting,
+};
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
@@ -23,7 +25,7 @@ pub struct Games<'a> {
     moderator: Option<Cow<'a, str>>,
     #[serde(rename = "_bulk")]
     bulk: Option<bool>,
-    orderby: Option<GamesOrderBy>,
+    orderby: Option<GamesSorting>,
     direction: Option<Direction>,
 }
 
@@ -47,16 +49,24 @@ impl<'a> Endpoint for Games<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for games
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum GamesOrderBy {
+pub enum GamesSorting {
+    /// Sorts alphanumerically by the international name (default)
     #[serde(rename = "name.int")]
     NameInternational,
+    /// Sorts alphanumerically by the Japanese name
     #[serde(rename = "name.jap")]
     NameJapanese,
+    /// Sorts alphanumerically by the abbreviation
     Abbreviation,
+    /// Sorts by the release date
     Released,
+    /// Sorts by the date the game was added to speedrun.com
     Created,
+    /// Sorts by string similarity. *Only available when searching games by
+    /// name* (default when searching by name)
     Similarity,
 }
 
@@ -92,27 +102,13 @@ pub struct GameCategories<'a> {
     #[serde(skip)]
     id: Cow<'a, str>,
     miscellaneous: Option<bool>,
-    orderby: Option<GameCategoriesOrderBy>,
+    orderby: Option<CategoriesSorting>,
     direction: Option<Direction>,
 }
 
 impl<'a> GameCategories<'a> {
     pub fn builder() -> GameCategoriesBuilder<'a> {
         GameCategoriesBuilder::default()
-    }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum GameCategoriesOrderBy {
-    Name,
-    Miscellaneous,
-    Pos,
-}
-
-impl Default for GameCategoriesOrderBy {
-    fn default() -> Self {
-        Self::Pos
     }
 }
 
@@ -136,15 +132,24 @@ impl<'a> Endpoint for GameCategories<'a> {
 pub struct GameLevels<'a> {
     #[serde(skip)]
     id: Cow<'a, str>,
-    orderby: Option<GameLevelsOrderBy>,
+    orderby: Option<LevelsSorting>,
     direction: Option<Direction>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for levels
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum GameLevelsOrderBy {
+pub enum LevelsSorting {
+    /// Sorts alphanumerically by the level name
     Name,
+    /// Sorts by the order defined by the game moderator (default)
     Pos,
+}
+
+impl Default for LevelsSorting {
+    fn default() -> Self {
+        Self::Pos
+    }
 }
 
 impl<'a> GameLevels<'a> {
@@ -173,17 +178,8 @@ impl<'a> Endpoint for GameLevels<'a> {
 pub struct GameVariables<'a> {
     #[serde(skip)]
     id: Cow<'a, str>,
-    orderby: Option<GameVariablesOrderBy>,
+    orderby: Option<VariablesSorting>,
     direction: Option<Direction>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum GameVariablesOrderBy {
-    Name,
-    Mandatory,
-    UserDefined,
-    Pos,
 }
 
 impl<'a> GameVariables<'a> {
@@ -306,7 +302,7 @@ impl<'a> GameDerivedGamesBuilder<'a> {
     }
     pub fn orderby<V>(&mut self, value: V) -> &mut Self
     where
-        V: Into<GamesOrderBy>,
+        V: Into<GamesSorting>,
     {
         self.inner.orderby(value);
         self

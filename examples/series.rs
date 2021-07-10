@@ -4,7 +4,7 @@ use futures::{StreamExt, TryStreamExt};
 use serde::Deserialize;
 use speedrun_api::{
     api::{
-        series::{ListSeries, Series, SeriesGames, SeriesOrderBy},
+        series::{ListSeries, Series, SeriesGames, SeriesSorting},
         AsyncQuery, Direction, PagedEndpointExt,
     },
     error::SpeedrunApiResult,
@@ -27,7 +27,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
         })
         .await?;
     let endpoint = ListSeries::builder()
-        .orderby(SeriesOrderBy::Created)
+        .orderby(SeriesSorting::Created)
         .direction(Direction::Desc)
         .build()
         .unwrap();

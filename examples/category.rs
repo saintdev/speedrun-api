@@ -1,8 +1,9 @@
 use futures::TryStreamExt;
+
 use speedrun_api::{
     api::{
-        categories::{Category, CategoryRecords, CategoryVariables, CategoryVariablesOrderBy},
-        AsyncQuery, Direction, PagedEndpointExt,
+        categories::{Category, CategoryRecords, CategoryVariables},
+        AsyncQuery, Direction, PagedEndpointExt, VariablesSorting,
     },
     error::SpeedrunApiResult,
     types, SpeedrunApiBuilder,
@@ -24,7 +25,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
     println!("{:#?}", variables);
 
     let endpoint = builder
-        .orderby(CategoryVariablesOrderBy::Mandatory)
+        .orderby(VariablesSorting::Mandatory)
         .direction(Direction::Desc)
         .build()
         .unwrap();

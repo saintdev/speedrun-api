@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use http::Method;
 use serde::Serialize;
 
-use super::{endpoint::Endpoint, Direction, Pageable};
+use super::{endpoint::Endpoint, CategoriesSorting, Direction, Pageable, VariablesSorting};
 
 #[derive(Default, Debug, Builder, Clone)]
 #[builder(default, setter(into, strip_option))]
@@ -34,16 +34,8 @@ pub struct LevelCategories<'a> {
     #[serde(skip)]
     id: Cow<'a, str>,
     miscellaneous: Option<bool>,
-    orderby: Option<LevelCategoriesOrderBy>,
+    orderby: Option<CategoriesSorting>,
     direction: Option<Direction>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum LevelCategoriesOrderBy {
-    Name,
-    Miscellaneous,
-    Pos,
 }
 
 impl<'a> LevelCategories<'a> {
@@ -72,7 +64,7 @@ impl<'a> Endpoint for LevelCategories<'a> {
 pub struct LevelVariables<'a> {
     #[serde(skip)]
     id: Cow<'a, str>,
-    orderby: Option<LevelVariablesOrderBy>,
+    orderby: Option<VariablesSorting>,
     direction: Option<Direction>,
 }
 
@@ -80,15 +72,6 @@ impl<'a> LevelVariables<'a> {
     pub fn builder() -> LevelVariablesBuilder<'a> {
         LevelVariablesBuilder::default()
     }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum LevelVariablesOrderBy {
-    Name,
-    Mandatory,
-    UserDefined,
-    Pos,
 }
 
 impl<'a> Endpoint for LevelVariables<'a> {

@@ -14,7 +14,7 @@ pub struct Users<'a> {
     hitbox: Option<Cow<'a, str>>,
     twitter: Option<Cow<'a, str>>,
     speedrunslive: Option<Cow<'a, str>>,
-    orderby: Option<UsersOrderBy>,
+    orderby: Option<UsersSorting>,
     direction: Option<Direction>,
 }
 
@@ -24,15 +24,26 @@ impl<'a> Users<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for users
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum UsersOrderBy {
+pub enum UsersSorting {
+    /// Sorts alphanumerically by the international name (default)
     #[serde(rename = "name.int")]
     NameInternational,
+    /// Sorts alphanumerically by the Japanese name
     #[serde(rename = "name.jap")]
     NameJapanese,
+    /// Sorts by the signup date
     Signup,
+    /// Sorts by the user role
     Role,
+}
+
+impl Default for UsersSorting {
+    fn default() -> Self {
+        Self::NameInternational
+    }
 }
 
 impl Endpoint for Users<'_> {

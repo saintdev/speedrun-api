@@ -9,7 +9,7 @@ use super::{endpoint::Endpoint, Direction, Pageable};
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Platforms {
-    orderby: Option<PlatformsOrderBy>,
+    orderby: Option<PlatformsSorting>,
     direction: Option<Direction>,
 }
 
@@ -19,11 +19,20 @@ impl Platforms {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for platforms
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum PlatformsOrderBy {
+pub enum PlatformsSorting {
+    /// Sorts alphanumerically by the platform name (default)
     Name,
+    /// Sorts by the year the platform was released
     Released,
+}
+
+impl Default for PlatformsSorting {
+    fn default() -> Self {
+        Self::Name
+    }
 }
 
 impl Endpoint for Platforms {

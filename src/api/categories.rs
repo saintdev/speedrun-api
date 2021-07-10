@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use http::Method;
 use serde::Serialize;
 
-use super::{common::Direction, endpoint::Endpoint, error::BodyError, pagination::Pageable};
+use super::{endpoint::Endpoint, error::BodyError, Direction, Pageable, VariablesSorting};
 
 /// Retrieves a single category, identified by it's ID
 #[derive(Debug, Builder)]
@@ -30,26 +30,6 @@ impl<'a> Endpoint for Category<'a> {
     }
 }
 
-/// Sorting options for category variables
-#[derive(Debug, Serialize, Clone, Copy)]
-#[serde(rename_all = "kebab-case")]
-pub enum CategoryVariablesOrderBy {
-    /// Sorts alphanumerically by the variable name
-    Name,
-    /// Sorts by `mandatory` flag
-    Mandatory,
-    /// Sorts by user-defined flat
-    UserDefined,
-    /// Sorts by the order defined by the game moderator (default)
-    Pos,
-}
-
-impl Default for CategoryVariablesOrderBy {
-    fn default() -> Self {
-        Self::Pos
-    }
-}
-
 /// Retrieves all variables that are applicable to the category identified by
 /// ID.
 #[derive(Debug, Builder, Serialize)]
@@ -60,7 +40,7 @@ pub struct CategoryVariables<'a> {
     id: Cow<'a, str>,
     #[builder(default, setter(strip_option))]
     #[doc = r"Sorting for results"]
-    orderby: Option<CategoryVariablesOrderBy>,
+    orderby: Option<VariablesSorting>,
     #[builder(default, setter(strip_option))]
     #[doc = r"Sort direction"]
     direction: Option<Direction>,

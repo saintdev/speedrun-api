@@ -19,7 +19,7 @@ pub struct Runs<'a> {
     region: Option<Cow<'a, str>>,
     emulated: Option<bool>,
     status: Option<RunStatus>,
-    orderby: Option<RunsOrderBy>,
+    orderby: Option<RunsSorting>,
     direction: Option<Direction>,
 }
 
@@ -37,19 +37,36 @@ pub enum RunStatus {
     Rejected,
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for runs
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum RunsOrderBy {
+pub enum RunsSorting {
+    /// Sorts by the game the run was done in (default)
     Game,
+    /// Sorts by the run category
     Category,
+    /// Sorts by the run level
     Level,
+    /// Sorts by the platform used for the run
     Platform,
+    /// Sorts by the console region used for the run
     Region,
+    /// Sorts by whether an emulator was used for the run
     Emulated,
+    /// Sorts by the date of the run
     Date,
+    /// Sorts by the date when the run was submitted to speedrun.com
     Submitted,
+    /// Sorts by verification status
     Status,
+    /// Sorts by the date the run was verified
     VerifyDate,
+}
+
+impl Default for RunsSorting {
+    fn default() -> Self {
+        Self::Game
+    }
 }
 
 impl Endpoint for Runs<'_> {

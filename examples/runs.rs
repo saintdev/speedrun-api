@@ -3,7 +3,7 @@ use std::future;
 use futures::{StreamExt, TryStreamExt};
 use speedrun_api::{
     api::{
-        runs::{Run, RunStatus, Runs, RunsOrderBy},
+        runs::{Run, RunStatus, Runs, RunsSorting},
         AsyncQuery, Direction, PagedEndpointExt,
     },
     error::SpeedrunApiResult,
@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Runs::builder()
         .status(RunStatus::Verified)
-        .orderby(RunsOrderBy::VerifyDate)
+        .orderby(RunsSorting::VerifyDate)
         .direction(Direction::Desc)
         .build()
         .unwrap();
@@ -43,7 +43,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Runs::builder()
         .status(RunStatus::New)
-        .orderby(RunsOrderBy::Submitted)
+        .orderby(RunsSorting::Submitted)
         .direction(Direction::Desc)
         .build()
         .unwrap();

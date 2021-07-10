@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use super::{
     endpoint::Endpoint,
-    games::{Games, GamesBuilder, GamesBuilderError, GamesOrderBy},
+    games::{Games, GamesBuilder, GamesBuilderError, GamesSorting},
     Direction, Pageable,
 };
 
@@ -17,7 +17,7 @@ pub struct ListSeries<'a> {
     name: Option<Cow<'a, str>>,
     abbreviation: Option<Cow<'a, str>>,
     moderator: Option<Cow<'a, str>>,
-    orderby: Option<SeriesOrderBy>,
+    orderby: Option<SeriesSorting>,
     direction: Option<Direction>,
 }
 
@@ -27,15 +27,26 @@ impl<'a> ListSeries<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Sorting options for game series
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
-pub enum SeriesOrderBy {
+pub enum SeriesSorting {
+    /// Sorts alphanumerically by the international name (default)
     #[serde(rename = "name.int")]
     NameInternational,
+    /// Sorts alphanumerically by the Japanese name
     #[serde(rename = "name.jap")]
     NameJapanese,
+    /// Sorts alphanumerically by the abbreviation
     Abbreviation,
+    /// Sorts by the date the series was added to speedrun.com
     Created,
+}
+
+impl Default for SeriesSorting {
+    fn default() -> Self {
+        Self::NameInternational
+    }
 }
 
 impl Endpoint for ListSeries<'_> {
@@ -198,7 +209,7 @@ impl<'a> SeriesGamesBuilder<'a> {
         self
     }
 
-    pub fn orderby(&mut self, value: GamesOrderBy) -> &mut Self {
+    pub fn orderby(&mut self, value: GamesSorting) -> &mut Self {
         self.inner.orderby(value);
         self
     }
