@@ -4,6 +4,7 @@ mod games;
 mod guests;
 mod leaderboards;
 mod levels;
+mod notifications;
 mod platforms;
 mod regions;
 mod runs;
