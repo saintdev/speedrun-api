@@ -7,12 +7,14 @@
 #[macro_use]
 extern crate derive_builder;
 
+mod auth;
 mod client;
 
 pub mod api;
 pub mod error;
 pub mod types;
 
+pub use auth::AuthError;
 pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 
 //TODO:

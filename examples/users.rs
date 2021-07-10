@@ -15,7 +15,7 @@ use speedrun_api::{
 pub async fn main() -> SpeedrunApiResult<()> {
     env_logger::init();
 
-    let client = SpeedrunApiBuilder::default().build_async().await?;
+    let client = SpeedrunApiBuilder::default().build_async()?;
 
     // This should return all users, but the API returns an error. However, this is
     // the example used in the API documentation.

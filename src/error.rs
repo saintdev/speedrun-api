@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-use crate::api;
+use crate::{api, AuthError};
 
 pub type SpeedrunApiResult<T> = Result<T, SpeedrunApiError>;
 
@@ -31,5 +31,10 @@ pub enum RestError {
     Http {
         #[from]
         source: http::Error,
+    },
+    #[error("authentication error: {}", source)]
+    Authentication {
+        #[from]
+        source: AuthError,
     },
 }

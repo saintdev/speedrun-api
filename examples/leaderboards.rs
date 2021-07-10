@@ -13,7 +13,7 @@ use speedrun_api::{
 pub async fn main() -> SpeedrunApiResult<()> {
     env_logger::init();
 
-    let client = SpeedrunApiBuilder::new().build_async().await?;
+    let client = SpeedrunApiBuilder::new().build_async()?;
 
     let endpoint = FullGameLeaderboard::builder()
         .game("xldev513")

@@ -3,11 +3,12 @@ use std::convert::TryInto;
 use async_trait::async_trait;
 use futures::TryFutureExt;
 use log::debug;
-use reqwest::{blocking::Client, Client as AsyncClient};
+use reqwest::{blocking::Client as HttpClient, Client as AsyncHttpClient};
 use url::Url;
 
 use crate::{
     api,
+    auth::Auth,
     error::{RestError, SpeedrunApiResult},
 };
 
@@ -15,19 +16,37 @@ const SPEEDRUN_API_BASE_URL: &str = "https://www.speedrun.com/api/v1/";
 
 #[derive(Clone, Debug)]
 pub struct SpeedrunApiClient {
-    client: Client,
+    client: HttpClient,
     rest_url: Url,
+    api_key: Auth,
 }
 
 impl SpeedrunApiClient {
     pub fn new() -> SpeedrunApiResult<Self> {
+        Self::new_impl::<String>(None)
+    }
+
+    pub fn with_api_key<S>(api_key: S) -> SpeedrunApiResult<Self>
+    where
+        S: Into<String>,
+    {
+        Self::new_impl(Some(api_key))
+    }
+
+    fn new_impl<S>(api_key: Option<S>) -> SpeedrunApiResult<Self>
+    where
+        S: Into<String>,
+    {
         let rest_url = Url::parse(SPEEDRUN_API_BASE_URL)?;
-        let api = SpeedrunApiClient {
-            client: Client::new(),
-            rest_url,
+        let api_key = Auth {
+            token: api_key.map(Into::into),
         };
 
-        Ok(api)
+        Ok(SpeedrunApiClient {
+            client: HttpClient::new(),
+            rest_url,
+            api_key,
+        })
     }
 
     pub fn builder() -> SpeedrunApiBuilder {
@@ -49,10 +68,12 @@ impl api::RestClient for SpeedrunApiClient {
 impl api::Client for SpeedrunApiClient {
     fn rest(
         &self,
-        request: http::request::Builder,
+        mut request: http::request::Builder,
         body: Vec<u8>,
     ) -> Result<http::Response<bytes::Bytes>, api::ApiError<Self::Error>> {
         let call = || -> Result<_, RestError> {
+            self.api_key
+                .set_auth_header(request.headers_mut().unwrap())?;
             let http_request = request.body(body)?;
             let request = http_request.try_into()?;
             let rsp = self.client.execute(request)?;
@@ -70,16 +91,39 @@ impl api::Client for SpeedrunApiClient {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct SpeedrunApiClientAsync {
-    client: AsyncClient,
+    client: AsyncHttpClient,
     rest_url: Url,
+    api_key: Auth,
 }
 
 impl SpeedrunApiClientAsync {
-    async fn new() -> SpeedrunApiResult<Self> {
+    pub fn new() -> SpeedrunApiResult<Self> {
+        Self::new_impl::<String>(None)
+    }
+
+    pub fn with_api_key<S>(api_key: S) -> SpeedrunApiResult<Self>
+    where
+        S: Into<String>,
+    {
+        Self::new_impl(Some(api_key.into()))
+    }
+
+    fn new_impl<S>(api_key: Option<S>) -> SpeedrunApiResult<Self>
+    where
+        S: Into<String>,
+    {
         let rest_url = Url::parse(SPEEDRUN_API_BASE_URL)?;
-        let client = AsyncClient::new();
-        let api = Self { client, rest_url };
+        let client = AsyncHttpClient::new();
+        let auth = Auth {
+            token: api_key.map(Into::into),
+        };
+        let api = Self {
+            client,
+            rest_url,
+            api_key: auth,
+        };
         Ok(api)
     }
 }
@@ -99,10 +143,12 @@ impl api::RestClient for SpeedrunApiClientAsync {
 impl api::AsyncClient for SpeedrunApiClientAsync {
     async fn rest_async(
         &self,
-        request: http::request::Builder,
+        mut request: http::request::Builder,
         body: Vec<u8>,
     ) -> Result<http::Response<bytes::Bytes>, api::ApiError<Self::Error>> {
         let call = || async {
+            self.api_key
+                .set_auth_header(request.headers_mut().unwrap())?;
             let http_request = request.body(body)?;
             let request = http_request.try_into()?;
             let rsp = self.client.execute(request).await?;
@@ -120,24 +166,29 @@ impl api::AsyncClient for SpeedrunApiClientAsync {
     }
 }
 
-pub struct SpeedrunApiBuilder {}
+#[derive(Debug, Default)]
+pub struct SpeedrunApiBuilder {
+    api_key: Option<String>,
+}
 
 impl SpeedrunApiBuilder {
     pub fn new() -> Self {
-        SpeedrunApiBuilder {}
+        SpeedrunApiBuilder::default()
+    }
+
+    pub fn api_key<S>(&mut self, value: S) -> &mut Self
+    where
+        S: Into<String>,
+    {
+        self.api_key = Some(value.into());
+        self
     }
 
     pub fn build(&self) -> SpeedrunApiResult<SpeedrunApiClient> {
-        SpeedrunApiClient::new()
+        SpeedrunApiClient::new_impl(self.api_key.as_ref())
     }
 
-    pub async fn build_async(&self) -> SpeedrunApiResult<SpeedrunApiClientAsync> {
-        SpeedrunApiClientAsync::new().await
-    }
-}
-
-impl Default for SpeedrunApiBuilder {
-    fn default() -> Self {
-        Self::new()
+    pub fn build_async(&self) -> SpeedrunApiResult<SpeedrunApiClientAsync> {
+        SpeedrunApiClientAsync::new_impl(self.api_key.as_ref())
     }
 }

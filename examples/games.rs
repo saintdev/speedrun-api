@@ -15,7 +15,7 @@ use speedrun_api::{
 pub async fn main() -> SpeedrunApiResult<()> {
     env_logger::init();
 
-    let client = SpeedrunApiBuilder::new().build_async().await?;
+    let client = SpeedrunApiBuilder::new().build_async()?;
 
     let endpoint = Games::builder().build().unwrap();
     let games: Vec<types::Game> = endpoint.stream(&client).take(40).try_collect().await?;

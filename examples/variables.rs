@@ -8,7 +8,7 @@ use speedrun_api::{
 pub async fn main() -> SpeedrunApiResult<()> {
     env_logger::init();
 
-    let client = SpeedrunApiBuilder::default().build_async().await?;
+    let client = SpeedrunApiBuilder::default().build_async()?;
 
     let endpoint = Variable::builder().id("ylpm6vlg").build().unwrap();
     let variable: types::Variable = endpoint.query_async(&client).await?;

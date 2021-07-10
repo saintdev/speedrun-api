@@ -12,7 +12,7 @@ use speedrun_api::{
 pub async fn main() -> SpeedrunApiResult<()> {
     env_logger::init();
 
-    let client = SpeedrunApiBuilder::new().build_async().await?;
+    let client = SpeedrunApiBuilder::new().build_async()?;
 
     let endpoint = Category::builder().id("nxd1rk8q").build().unwrap();
     let category: types::Category = endpoint.query_async(&client).await?;
