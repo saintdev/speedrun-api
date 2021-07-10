@@ -16,8 +16,7 @@ pub mod levels;
 pub mod notifications;
 mod pagination;
 pub mod platforms;
-//TODO: Authentacation
-// pub mod profile;
+pub mod profile;
 mod query;
 pub mod regions;
 pub mod runs;
