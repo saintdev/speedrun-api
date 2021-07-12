@@ -15,6 +15,7 @@ pub mod notifications;
 mod pagination;
 pub mod platforms;
 pub mod profile;
+pub mod publishers;
 mod query;
 pub mod regions;
 pub mod runs;
