@@ -6,6 +6,7 @@ mod endpoint;
 pub mod engines;
 mod error;
 pub mod games;
+pub mod gametypes;
 pub mod guests;
 pub mod leaderboards;
 pub mod levels;

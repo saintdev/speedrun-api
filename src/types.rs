@@ -3,6 +3,7 @@ mod common;
 mod developers;
 mod engines;
 mod games;
+mod gametypes;
 mod guests;
 mod leaderboards;
 mod levels;
@@ -22,6 +23,7 @@ pub use common::{Asset, Assets, Link, ModeratorRole, Names, Pagination, TimingMe
 pub use developers::Developer;
 pub use engines::Engine;
 pub use games::{Game, Ruleset};
+pub use gametypes::GameType;
 pub use guests::Guest;
 pub use leaderboards::{Leaderboard, RankedRun};
 pub use levels::Level;
