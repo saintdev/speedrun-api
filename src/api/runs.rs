@@ -176,6 +176,10 @@ impl Endpoint for CreateRun<'_> {
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, super::error::BodyError> {
         Ok(serde_json::to_vec(self).map(|body| Some(("application/json", body)))?)
     }
+
+    fn requires_authentication(&self) -> bool {
+        true
+    }
 }
 
 #[derive(Debug, Builder, Serialize, Clone)]
@@ -213,6 +217,10 @@ impl Endpoint for UpdateRunStatus<'_> {
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, super::error::BodyError> {
         Ok(serde_json::to_vec(self).map(|body| Some(("application/json", body)))?)
     }
+
+    fn requires_authentication(&self) -> bool {
+        true
+    }
 }
 
 #[derive(Debug, Builder, Serialize, Clone)]
@@ -242,6 +250,10 @@ impl Endpoint for UpdateRunPlayers<'_> {
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, super::error::BodyError> {
         Ok(serde_json::to_vec(self).map(|body| Some(("application/json", body)))?)
     }
+
+    fn requires_authentication(&self) -> bool {
+        true
+    }
 }
 
 #[derive(Debug, Builder, Serialize, Clone)]
@@ -264,5 +276,9 @@ impl Endpoint for DeleteRun<'_> {
 
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/runs/{}", self.id).into()
+    }
+
+    fn requires_authentication(&self) -> bool {
+        true
     }
 }

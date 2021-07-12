@@ -20,4 +20,8 @@ impl Endpoint for Profile {
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "/profile".into()
     }
+
+    fn requires_authentication(&self) -> bool {
+        true
+    }
 }

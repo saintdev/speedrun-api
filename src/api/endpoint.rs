@@ -34,6 +34,12 @@ pub trait Endpoint {
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(None)
     }
+
+    //NOTE: Move this into a type/trait?
+    /// If this endpoint requires a valid API key
+    fn requires_authentication(&self) -> bool {
+        false
+    }
 }
 
 impl<E, T, C> Query<T, C> for E
@@ -43,6 +49,9 @@ where
     C: Client,
 {
     fn query(&self, client: &C) -> Result<T, super::ApiError<C::Error>> {
+        if self.requires_authentication() && !client.has_api_key() {
+            return Err(ApiError::RequiresAuthentication);
+        }
         let mut url = client.rest_endpoint(&self.endpoint())?;
         self.set_query_parameters(&mut url)?;
 
@@ -76,6 +85,9 @@ where
     C: AsyncClient + Sync,
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
+        if self.requires_authentication() && !client.has_api_key() {
+            return Err(ApiError::RequiresAuthentication);
+        }
         let mut url = client.rest_endpoint(&self.endpoint())?;
         self.set_query_parameters(&mut url)?;
 

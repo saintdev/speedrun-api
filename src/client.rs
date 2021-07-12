@@ -63,6 +63,10 @@ impl api::RestClient for SpeedrunApiClient {
             .join(endpoint.trim_start_matches('/'))
             .map_err(From::from)
     }
+
+    fn has_api_key(&self) -> bool {
+        self.api_key.token.is_some()
+    }
 }
 
 impl api::Client for SpeedrunApiClient {
@@ -136,6 +140,10 @@ impl api::RestClient for SpeedrunApiClientAsync {
         self.rest_url
             .join(endpoint.trim_start_matches('/'))
             .map_err(From::from)
+    }
+
+    fn has_api_key(&self) -> bool {
+        self.api_key.token.is_some()
     }
 }
 

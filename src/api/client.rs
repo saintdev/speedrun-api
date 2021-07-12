@@ -17,6 +17,9 @@ pub trait RestClient {
     ///
     /// This method adds the hostname for the target api.
     fn rest_endpoint(&self, endpoint: &str) -> Result<Url, ApiError<Self::Error>>;
+
+    /// If the client has an API key
+    fn has_api_key(&self) -> bool;
 }
 
 /// A trait representing a client which can communicate with speedrun.com

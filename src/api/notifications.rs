@@ -42,4 +42,8 @@ impl Endpoint for Notifications {
     fn query_parameters(&self) -> Result<std::borrow::Cow<'static, str>, super::error::BodyError> {
         Ok(serde_urlencoded::to_string(self)?.into())
     }
+
+    fn requires_authentication(&self) -> bool {
+        true
+    }
 }

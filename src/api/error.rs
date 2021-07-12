@@ -74,6 +74,8 @@ where
         /// The name of the type that could not be deserialized.
         typename: &'static str,
     },
+    #[error("Endpoint requires authentication, but no API key was provided")]
+    RequiresAuthentication,
 }
 
 impl<E> ApiError<E>
