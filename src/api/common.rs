@@ -9,13 +9,6 @@ pub enum Direction {
     Desc,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub(crate) struct Root<T> {
-    pub(crate) data: T,
-    pub(crate) pagination: Option<Pagination>,
-}
-
 /// Sorting options for variables
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -30,12 +23,6 @@ pub enum VariablesSorting {
     Pos,
 }
 
-impl Default for VariablesSorting {
-    fn default() -> Self {
-        Self::Pos
-    }
-}
-
 /// Sorting options for categories
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -46,6 +33,19 @@ pub enum CategoriesSorting {
     Miscellaneous,
     /// Use sort order defined by game moderator (default)
     Pos,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub(crate) struct Root<T> {
+    pub(crate) data: T,
+    pub(crate) pagination: Option<Pagination>,
+}
+
+impl Default for VariablesSorting {
+    fn default() -> Self {
+        Self::Pos
+    }
 }
 
 impl Default for CategoriesSorting {

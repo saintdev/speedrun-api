@@ -5,30 +5,6 @@ use serde::Serialize;
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct Runs<'a> {
-    user: Option<Cow<'a, str>>,
-    guest: Option<Cow<'a, str>>,
-    examiner: Option<Cow<'a, str>>,
-    game: Option<Cow<'a, str>>,
-    level: Option<Cow<'a, str>>,
-    category: Option<Cow<'a, str>>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
-    emulated: Option<bool>,
-    status: Option<RunStatus>,
-    orderby: Option<RunsSorting>,
-    direction: Option<Direction>,
-}
-
-impl<'a> Runs<'a> {
-    pub fn builder() -> RunsBuilder<'a> {
-        RunsBuilder::default()
-    }
-}
-
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum RunStatus {
@@ -63,49 +39,61 @@ pub enum RunsSorting {
     VerifyDate,
 }
 
-impl Default for RunsSorting {
-    fn default() -> Self {
-        Self::Game
-    }
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+#[serde(tag = "rel")]
+pub enum Player {
+    User { id: String },
+    Guest { name: String },
 }
 
-impl Endpoint for Runs<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        "/runs".into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+pub enum SplitsIo {
+    Id(String),
+    Url(url::Url),
 }
 
-impl Pageable for Runs<'_> {}
+// Does this belong here?
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "kebab-case")]
+pub enum VariableType {
+    PreDefined { value: String },
+    UserDefined { value: String },
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "kebab-case")]
+#[serde(tag = "status")]
+pub enum NewStatus {
+    Verified,
+    Rejected { reason: String },
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct Runs<'a> {
+    user: Option<Cow<'a, str>>,
+    guest: Option<Cow<'a, str>>,
+    examiner: Option<Cow<'a, str>>,
+    game: Option<Cow<'a, str>>,
+    level: Option<Cow<'a, str>>,
+    category: Option<Cow<'a, str>>,
+    platform: Option<Cow<'a, str>>,
+    region: Option<Cow<'a, str>>,
+    emulated: Option<bool>,
+    status: Option<RunStatus>,
+    orderby: Option<RunsSorting>,
+    direction: Option<Direction>,
+}
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Run<'a> {
     id: Cow<'a, str>,
-}
-
-impl<'a> Run<'a> {
-    pub fn builder() -> RunBuilder<'a> {
-        RunBuilder::default()
-    }
-}
-
-impl Endpoint for Run<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/runs/{}", self.id).into()
-    }
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -127,20 +115,6 @@ pub struct CreateRun<'a> {
     variables: HashMap<String, VariableType>,
 }
 
-impl<'a> CreateRun<'a> {
-    pub fn buider() -> CreateRunBuilder<'a> {
-        CreateRunBuilder::default()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-#[serde(rename_all = "kebab-case")]
-#[serde(tag = "rel")]
-pub enum Player {
-    User { id: String },
-    Guest { name: String },
-}
-
 #[derive(Default, Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct Times {
@@ -149,19 +123,95 @@ pub struct Times {
     ingame: Option<f64>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
-#[serde(untagged)]
-pub enum SplitsIo {
-    Id(String),
-    Url(url::Url),
+pub struct UpdateRunStatus<'a> {
+    #[serde(skip)]
+    id: Cow<'a, str>,
+    status: NewStatus,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
-pub enum VariableType {
-    PreDefined { value: String },
-    UserDefined { value: String },
+pub struct UpdateRunPlayers<'a> {
+    #[serde(skip)]
+    id: Cow<'a, str>,
+    players: Vec<Player>,
+}
+
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct DeleteRun<'a> {
+    id: Cow<'a, str>,
+}
+
+impl<'a> Runs<'a> {
+    pub fn builder() -> RunsBuilder<'a> {
+        RunsBuilder::default()
+    }
+}
+
+impl<'a> Run<'a> {
+    pub fn builder() -> RunBuilder<'a> {
+        RunBuilder::default()
+    }
+}
+
+impl<'a> CreateRun<'a> {
+    pub fn buider() -> CreateRunBuilder<'a> {
+        CreateRunBuilder::default()
+    }
+}
+
+impl<'a> UpdateRunStatus<'a> {
+    pub fn builder() -> UpdateRunStatusBuilder<'a> {
+        UpdateRunStatusBuilder::default()
+    }
+}
+
+impl<'a> UpdateRunPlayers<'a> {
+    pub fn builder() -> UpdateRunPlayersBuilder<'a> {
+        UpdateRunPlayersBuilder::default()
+    }
+}
+
+impl<'a> DeleteRun<'a> {
+    pub fn builder() -> DeleteRunBuilder<'a> {
+        DeleteRunBuilder::default()
+    }
+}
+
+impl Default for RunsSorting {
+    fn default() -> Self {
+        Self::Game
+    }
+}
+
+impl Endpoint for Runs<'_> {
+    fn method(&self) -> http::Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        "/runs".into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl Endpoint for Run<'_> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/runs/{}", self.id).into()
+    }
 }
 
 impl Endpoint for CreateRun<'_> {
@@ -182,29 +232,6 @@ impl Endpoint for CreateRun<'_> {
     }
 }
 
-#[derive(Debug, Builder, Serialize, Clone)]
-#[builder(setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct UpdateRunStatus<'a> {
-    #[serde(skip)]
-    id: Cow<'a, str>,
-    status: NewStatus,
-}
-
-impl<'a> UpdateRunStatus<'a> {
-    pub fn builder() -> UpdateRunStatusBuilder<'a> {
-        UpdateRunStatusBuilder::default()
-    }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-#[serde(tag = "status")]
-pub enum NewStatus {
-    Verified,
-    Rejected { reason: String },
-}
-
 impl Endpoint for UpdateRunStatus<'_> {
     fn method(&self) -> Method {
         Method::PUT
@@ -220,21 +247,6 @@ impl Endpoint for UpdateRunStatus<'_> {
 
     fn requires_authentication(&self) -> bool {
         true
-    }
-}
-
-#[derive(Debug, Builder, Serialize, Clone)]
-#[builder(setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct UpdateRunPlayers<'a> {
-    #[serde(skip)]
-    id: Cow<'a, str>,
-    players: Vec<Player>,
-}
-
-impl<'a> UpdateRunPlayers<'a> {
-    pub fn builder() -> UpdateRunPlayersBuilder<'a> {
-        UpdateRunPlayersBuilder::default()
     }
 }
 
@@ -256,19 +268,6 @@ impl Endpoint for UpdateRunPlayers<'_> {
     }
 }
 
-#[derive(Debug, Builder, Serialize, Clone)]
-#[builder(setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct DeleteRun<'a> {
-    id: Cow<'a, str>,
-}
-
-impl<'a> DeleteRun<'a> {
-    pub fn builder() -> DeleteRunBuilder<'a> {
-        DeleteRunBuilder::default()
-    }
-}
-
 impl Endpoint for DeleteRun<'_> {
     fn method(&self) -> Method {
         Method::DELETE
@@ -282,3 +281,5 @@ impl Endpoint for DeleteRun<'_> {
         true
     }
 }
+
+impl Pageable for Runs<'_> {}

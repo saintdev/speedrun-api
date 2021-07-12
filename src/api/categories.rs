@@ -13,23 +13,6 @@ pub struct Category<'a> {
     id: Cow<'a, str>,
 }
 
-impl<'a> Category<'a> {
-    /// Create a builder for this endpoint
-    pub fn builder() -> CategoryBuilder<'a> {
-        CategoryBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for Category<'a> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/categories/{}", self.id).into()
-    }
-}
-
 /// Retrieves all variables that are applicable to the category identified by
 /// ID.
 #[derive(Debug, Builder, Serialize)]
@@ -44,27 +27,6 @@ pub struct CategoryVariables<'a> {
     #[builder(default, setter(strip_option))]
     #[doc = r"Sort direction"]
     direction: Option<Direction>,
-}
-
-impl<'a> CategoryVariables<'a> {
-    /// Create a builder for this endpoint
-    pub fn builder() -> CategoryVariablesBuilder<'a> {
-        CategoryVariablesBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for CategoryVariables<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/categories/{}/variables", self.id).into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
 }
 
 /// Retrieves the records for the given category id.
@@ -82,10 +44,48 @@ pub struct CategoryRecords<'a> {
     skip_empty: Option<bool>,
 }
 
+impl<'a> Category<'a> {
+    /// Create a builder for this endpoint
+    pub fn builder() -> CategoryBuilder<'a> {
+        CategoryBuilder::default()
+    }
+}
+
+impl<'a> CategoryVariables<'a> {
+    /// Create a builder for this endpoint
+    pub fn builder() -> CategoryVariablesBuilder<'a> {
+        CategoryVariablesBuilder::default()
+    }
+}
+
 impl<'a> CategoryRecords<'a> {
     /// Create a builder for this endpoint
     pub fn builder() -> CategoryRecordsBuilder<'a> {
         CategoryRecordsBuilder::default()
+    }
+}
+
+impl<'a> Endpoint for Category<'a> {
+    fn method(&self) -> http::Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/categories/{}", self.id).into()
+    }
+}
+
+impl<'a> Endpoint for CategoryVariables<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/categories/{}/variables", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
 

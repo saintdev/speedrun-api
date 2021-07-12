@@ -36,6 +36,178 @@ pub trait PagedEndpointExt<'a, E> {
         E: Sync + Send;
 }
 
+/// Iterator type for the `iter` method.
+pub struct PagedIter<'a, E, C, T> {
+    client: &'a C,
+    state: SinglePage<'a, E>,
+    last_page: bool,
+    current_page: Vec<T>,
+}
+
+/// Builder for the `SinglePage` endpoint
+#[derive(Debug)]
+pub struct SinglePageBuilder<'a, E> {
+    inner: &'a E,
+    offset: Option<usize>,
+    max: Option<usize>,
+}
+
+/// Represents a single page of elements.
+#[derive(Debug)]
+pub struct SinglePage<'a, E> {
+    inner: &'a E,
+    offset: usize,
+    max: Option<usize>,
+}
+
+impl<'a, E, C, T> PagedIter<'a, E, C, T>
+where
+    E: Endpoint + Pageable,
+{
+    pub(crate) fn new(paged: &'a E, client: &'a C) -> Self {
+        let state = SinglePage::<E>::builder(paged).offset(0).build();
+        Self {
+            client,
+            state,
+            last_page: false,
+            current_page: Vec::new(),
+        }
+    }
+}
+
+impl<'a, E> SinglePageBuilder<'a, E>
+where
+    E: Pageable + Endpoint,
+{
+    pub fn new(paged: &'a E) -> Self {
+        Self {
+            inner: paged,
+            offset: None,
+            max: None,
+        }
+    }
+    /// Request set of elements beginning at `offset`
+    pub fn offset<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<usize>>,
+    {
+        self.offset = value.into();
+        self
+    }
+
+    /// Number of elements per request. Valid values are between 1 and 200.
+    pub fn page_size<T>(mut self, value: T) -> Self
+    where
+        T: Into<Option<usize>>,
+    {
+        // TODO: Validate that value is between 1 and 200.
+        self.max = value.into();
+        self
+    }
+
+    /// Returns a `SinglePage` that can be querired for a set of elements.
+    pub fn build(self) -> SinglePage<'a, E>
+    where
+        E: Pageable,
+    {
+        SinglePage {
+            inner: self.inner,
+            offset: self.offset.unwrap_or(0),
+            max: self.max,
+        }
+    }
+}
+
+impl<'a, E> SinglePage<'a, E>
+where
+    E: Endpoint + Pageable,
+{
+    /// Create a builder for a `SinglePage`
+    pub fn builder(paged: &'a E) -> SinglePageBuilder<'a, E> {
+        SinglePageBuilder::new(paged)
+    }
+
+    fn page_url<C: RestClient>(&self, client: &C) -> Result<url::Url, ApiError<C::Error>> {
+        let mut url = client.rest_endpoint(&self.inner.endpoint())?;
+        self.inner.set_query_parameters(&mut url)?;
+        {
+            let mut pairs = url.query_pairs_mut();
+            pairs.append_pair("offset", &format!("{}", &self.offset));
+            if let Some(max) = self.max {
+                pairs.append_pair("max", &format!("{}", max));
+            }
+        }
+        Ok(url)
+    }
+}
+
+#[async_trait]
+impl<'a, T, C, E> AsyncQuery<(Vec<T>, Pagination), C> for SinglePage<'a, E>
+where
+    T: DeserializeOwned + Send + 'static,
+    C: AsyncClient + Sync,
+    E: Endpoint + Pageable + Sync,
+{
+    async fn query_async(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
+        let url = self.page_url(client)?;
+
+        let body = self.inner.body()?;
+
+        let req = Request::builder()
+            .method(self.inner.method())
+            .uri(query::url_to_http_uri(url));
+
+        let (req, data) = if let Some((mime, data)) = body.as_ref() {
+            let req = req.header(header::CONTENT_TYPE, *mime);
+            (req, data.clone())
+        } else {
+            (req, Vec::new())
+        };
+
+        let rsp = client.rest_async(req, data).await?;
+        let status = rsp.status();
+
+        let value = serde_json::from_slice(rsp.body())?;
+        if !status.is_success() {
+            return Err(ApiError::from_speedrun_api(value));
+        }
+
+        serde_json::from_value::<Root<Vec<T>>>(value)
+            .map(|value| (value.data, value.pagination.unwrap_or_default()))
+            .map_err(ApiError::data_type::<Vec<T>>)
+    }
+}
+
+impl<'a, E, C, T> Iterator for PagedIter<'a, E, C, T>
+where
+    E: Endpoint + Pageable,
+    T: DeserializeOwned,
+    C: Client,
+{
+    type Item = Result<T, ApiError<C::Error>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_page.is_empty() {
+            if self.last_page {
+                return None;
+            }
+            self.current_page = match self.state.query(self.client) {
+                Ok((data, _pagination)) => data,
+                Err(err) => return Some(Err(err)),
+            };
+            self.state.offset += self.current_page.len();
+
+            // FIXME: 20 may not always be correct.
+            if self.current_page.len() < self.state.max.unwrap_or(20) {
+                self.last_page = true;
+            }
+            self.current_page.reverse();
+        }
+
+        self.current_page.pop().map(Ok)
+    }
+}
+
 impl<'a, E> PagedEndpointExt<'a, E> for E
 where
     E: Endpoint + Pageable,
@@ -86,111 +258,6 @@ where
     }
 }
 
-/// Iterator type for the `iter` method.
-pub struct PagedIter<'a, E, C, T> {
-    client: &'a C,
-    state: SinglePage<'a, E>,
-    last_page: bool,
-    current_page: Vec<T>,
-}
-
-impl<'a, E, C, T> PagedIter<'a, E, C, T>
-where
-    E: Endpoint + Pageable,
-{
-    pub(crate) fn new(paged: &'a E, client: &'a C) -> Self {
-        let state = SinglePage::<E>::builder(paged).offset(0).build();
-        Self {
-            client,
-            state,
-            last_page: false,
-            current_page: Vec::new(),
-        }
-    }
-}
-
-/// Builder for the `SinglePage` endpoint
-#[derive(Debug)]
-pub struct SinglePageBuilder<'a, E> {
-    inner: &'a E,
-    offset: Option<usize>,
-    max: Option<usize>,
-}
-
-impl<'a, E> SinglePageBuilder<'a, E>
-where
-    E: Pageable + Endpoint,
-{
-    pub fn new(paged: &'a E) -> Self {
-        Self {
-            inner: paged,
-            offset: None,
-            max: None,
-        }
-    }
-    /// Request set of elements beginning at `offset`
-    pub fn offset<T>(mut self, value: T) -> Self
-    where
-        T: Into<Option<usize>>,
-    {
-        self.offset = value.into();
-        self
-    }
-
-    /// Number of elements per request. Valid values are between 1 and 200.
-    pub fn page_size<T>(mut self, value: T) -> Self
-    where
-        T: Into<Option<usize>>,
-    {
-        // TODO: Validate that value is between 1 and 200.
-        self.max = value.into();
-        self
-    }
-
-    /// Returns a `SinglePage` that can be querired for a set of elements.
-    pub fn build(self) -> SinglePage<'a, E>
-    where
-        E: Pageable,
-    {
-        SinglePage {
-            inner: self.inner,
-            offset: self.offset.unwrap_or(0),
-            max: self.max,
-        }
-    }
-}
-
-/// Represents a single page of elements.
-#[derive(Debug)]
-pub struct SinglePage<'a, E> {
-    inner: &'a E,
-    offset: usize,
-    max: Option<usize>,
-}
-
-impl<'a, E> SinglePage<'a, E>
-where
-    E: Endpoint + Pageable,
-{
-    /// Create a builder for a `SinglePage`
-    pub fn builder(paged: &'a E) -> SinglePageBuilder<'a, E> {
-        SinglePageBuilder::new(paged)
-    }
-
-    fn page_url<C: RestClient>(&self, client: &C) -> Result<url::Url, ApiError<C::Error>> {
-        let mut url = client.rest_endpoint(&self.inner.endpoint())?;
-        self.inner.set_query_parameters(&mut url)?;
-        {
-            let mut pairs = url.query_pairs_mut();
-            pairs.append_pair("offset", &format!("{}", &self.offset));
-            if let Some(max) = self.max {
-                pairs.append_pair("max", &format!("{}", max));
-            }
-        }
-        Ok(url)
-    }
-}
-
 impl<'a, E, T, C> Query<(Vec<T>, Pagination), C> for SinglePage<'a, E>
 where
     E: Endpoint + Pageable,
@@ -214,73 +281,6 @@ where
         };
 
         let rsp = client.rest(req, data)?;
-        let status = rsp.status();
-
-        let value = serde_json::from_slice(rsp.body())?;
-        if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(value));
-        }
-
-        serde_json::from_value::<Root<Vec<T>>>(value)
-            .map(|value| (value.data, value.pagination.unwrap_or_default()))
-            .map_err(ApiError::data_type::<Vec<T>>)
-    }
-}
-
-impl<'a, E, C, T> Iterator for PagedIter<'a, E, C, T>
-where
-    E: Endpoint + Pageable,
-    T: DeserializeOwned,
-    C: Client,
-{
-    type Item = Result<T, ApiError<C::Error>>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current_page.is_empty() {
-            if self.last_page {
-                return None;
-            }
-            self.current_page = match self.state.query(self.client) {
-                Ok((data, _pagination)) => data,
-                Err(err) => return Some(Err(err)),
-            };
-            self.state.offset += self.current_page.len();
-
-            // FIXME: 20 may not always be correct.
-            if self.current_page.len() < self.state.max.unwrap_or(20) {
-                self.last_page = true;
-            }
-            self.current_page.reverse();
-        }
-
-        self.current_page.pop().map(Ok)
-    }
-}
-
-#[async_trait]
-impl<'a, T, C, E> AsyncQuery<(Vec<T>, Pagination), C> for SinglePage<'a, E>
-where
-    T: DeserializeOwned + Send + 'static,
-    C: AsyncClient + Sync,
-    E: Endpoint + Pageable + Sync,
-{
-    async fn query_async(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
-        let url = self.page_url(client)?;
-
-        let body = self.inner.body()?;
-
-        let req = Request::builder()
-            .method(self.inner.method())
-            .uri(query::url_to_http_uri(url));
-
-        let (req, data) = if let Some((mime, data)) = body.as_ref() {
-            let req = req.header(header::CONTENT_TYPE, *mime);
-            (req, data.clone())
-        } else {
-            (req, Vec::new())
-        };
-
-        let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
 
         let value = serde_json::from_slice(rsp.body())?;

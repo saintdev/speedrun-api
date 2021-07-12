@@ -10,23 +10,6 @@ use super::{
     Direction, Pageable,
 };
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct ListSeries<'a> {
-    name: Option<Cow<'a, str>>,
-    abbreviation: Option<Cow<'a, str>>,
-    moderator: Option<Cow<'a, str>>,
-    orderby: Option<SeriesSorting>,
-    direction: Option<Direction>,
-}
-
-impl<'a> ListSeries<'a> {
-    pub fn builder() -> ListSeriesBuilder<'a> {
-        ListSeriesBuilder::default()
-    }
-}
-
 /// Sorting options for game series
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -43,48 +26,29 @@ pub enum SeriesSorting {
     Created,
 }
 
-impl Default for SeriesSorting {
-    fn default() -> Self {
-        Self::NameInternational
-    }
+#[derive(Debug, Error)]
+pub enum SeriesGamesBuilderError {
+    #[error("{0} must be initialized")]
+    UninitializedField(&'static str),
+    #[error(transparent)]
+    Inner(#[from] GamesBuilderError),
 }
 
-impl Endpoint for ListSeries<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        "/series".into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct ListSeries<'a> {
+    name: Option<Cow<'a, str>>,
+    abbreviation: Option<Cow<'a, str>>,
+    moderator: Option<Cow<'a, str>>,
+    orderby: Option<SeriesSorting>,
+    direction: Option<Direction>,
 }
-
-impl Pageable for ListSeries<'_> {}
 
 #[derive(Default, Debug, Builder, Clone)]
 #[builder(default, setter(into, strip_option))]
 pub struct Series<'a> {
     id: Cow<'a, str>,
-}
-
-impl<'a> Series<'a> {
-    pub fn builder() -> SeriesBuilder<'a> {
-        SeriesBuilder::default()
-    }
-}
-
-impl Endpoint for Series<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/series/{}", self.id).into()
-    }
 }
 
 #[derive(Default, Debug, Clone)]
@@ -93,16 +57,28 @@ pub struct SeriesGames<'a> {
     inner: Games<'a>,
 }
 
-impl<'a> SeriesGames<'a> {
-    pub fn builder() -> SeriesGamesBuilder<'a> {
-        SeriesGamesBuilder::default()
-    }
-}
-
 #[derive(Default, Clone)]
 pub struct SeriesGamesBuilder<'a> {
     id: Option<Cow<'a, str>>,
     inner: GamesBuilder<'a>,
+}
+
+impl<'a> ListSeries<'a> {
+    pub fn builder() -> ListSeriesBuilder<'a> {
+        ListSeriesBuilder::default()
+    }
+}
+
+impl<'a> Series<'a> {
+    pub fn builder() -> SeriesBuilder<'a> {
+        SeriesBuilder::default()
+    }
+}
+
+impl<'a> SeriesGames<'a> {
+    pub fn builder() -> SeriesGamesBuilder<'a> {
+        SeriesGamesBuilder::default()
+    }
 }
 
 impl<'a> SeriesGamesBuilder<'a> {
@@ -232,12 +208,34 @@ impl<'a> SeriesGamesBuilder<'a> {
     }
 }
 
-#[derive(Debug, Error)]
-pub enum SeriesGamesBuilderError {
-    #[error("{0} must be initialized")]
-    UninitializedField(&'static str),
-    #[error(transparent)]
-    Inner(#[from] GamesBuilderError),
+impl Default for SeriesSorting {
+    fn default() -> Self {
+        Self::NameInternational
+    }
+}
+
+impl Endpoint for ListSeries<'_> {
+    fn method(&self) -> http::Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        "/series".into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl Endpoint for Series<'_> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/series/{}", self.id).into()
+    }
 }
 
 impl Endpoint for SeriesGames<'_> {
@@ -253,5 +251,7 @@ impl Endpoint for SeriesGames<'_> {
         Ok(serde_urlencoded::to_string(&self.inner)?.into())
     }
 }
+
+impl Pageable for ListSeries<'_> {}
 
 impl Pageable for SeriesGames<'_> {}

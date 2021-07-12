@@ -5,20 +5,6 @@ use serde::Serialize;
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct Platforms {
-    orderby: Option<PlatformsSorting>,
-    direction: Option<Direction>,
-}
-
-impl Platforms {
-    pub fn builder() -> PlatformsBuilder {
-        PlatformsBuilder::default()
-    }
-}
-
 /// Sorting options for platforms
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -27,6 +13,33 @@ pub enum PlatformsSorting {
     Name,
     /// Sorts by the year the platform was released
     Released,
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct Platforms {
+    orderby: Option<PlatformsSorting>,
+    direction: Option<Direction>,
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct Platform<'a> {
+    id: Cow<'a, str>,
+}
+
+impl Platforms {
+    pub fn builder() -> PlatformsBuilder {
+        PlatformsBuilder::default()
+    }
+}
+
+impl<'a> Platform<'a> {
+    pub fn builder() -> PlatformBuilder<'a> {
+        PlatformBuilder::default()
+    }
 }
 
 impl Default for PlatformsSorting {
@@ -49,21 +62,6 @@ impl Endpoint for Platforms {
     }
 }
 
-impl Pageable for Platforms {}
-
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct Platform<'a> {
-    id: Cow<'a, str>,
-}
-
-impl<'a> Platform<'a> {
-    pub fn builder() -> PlatformBuilder<'a> {
-        PlatformBuilder::default()
-    }
-}
-
 impl Endpoint for Platform<'_> {
     fn method(&self) -> Method {
         Method::GET
@@ -73,3 +71,5 @@ impl Endpoint for Platform<'_> {
         format!("/platforms/{}", self.id).into()
     }
 }
+
+impl Pageable for Platforms {}

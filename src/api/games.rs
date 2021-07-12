@@ -8,47 +8,6 @@ use super::{
     endpoint::Endpoint, error::BodyError, CategoriesSorting, Direction, Pageable, VariablesSorting,
 };
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct Games<'a> {
-    name: Option<Cow<'a, str>>,
-    abbreviation: Option<Cow<'a, str>>,
-    released: Option<i64>,
-    gametype: Option<Cow<'a, str>>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
-    genre: Option<Cow<'a, str>>,
-    engine: Option<Cow<'a, str>>,
-    developer: Option<Cow<'a, str>>,
-    publisher: Option<Cow<'a, str>>,
-    moderator: Option<Cow<'a, str>>,
-    #[serde(rename = "_bulk")]
-    bulk: Option<bool>,
-    orderby: Option<GamesSorting>,
-    direction: Option<Direction>,
-}
-
-impl<'a> Games<'a> {
-    pub fn builder() -> GamesBuilder<'a> {
-        GamesBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for Games<'a> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        "games".into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
-}
-
 /// Sorting options for games
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -70,29 +29,60 @@ pub enum GamesSorting {
     Similarity,
 }
 
-impl<'a> Pageable for Games<'a> {}
+// Does this belong here?
+/// Sorting options for levels
+#[derive(Debug, Serialize, Clone, Copy)]
+#[serde(rename_all = "kebab-case")]
+pub enum LevelsSorting {
+    /// Sorts alphanumerically by the level name
+    Name,
+    /// Sorts by the order defined by the game moderator (default)
+    Pos,
+}
+
+// Does this belong here?
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "kebab-case")]
+pub enum LeaderboardScope {
+    FullGame,
+    Levels,
+    All,
+}
+
+#[derive(Debug, Error)]
+pub enum GameDerivedGamesBuilderError {
+    #[error("{0} must be initialized")]
+    UninitializedField(&'static str),
+    #[error(transparent)]
+    Inner(#[from] GamesBuilderError),
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct Games<'a> {
+    name: Option<Cow<'a, str>>,
+    abbreviation: Option<Cow<'a, str>>,
+    released: Option<i64>,
+    gametype: Option<Cow<'a, str>>,
+    platform: Option<Cow<'a, str>>,
+    region: Option<Cow<'a, str>>,
+    genre: Option<Cow<'a, str>>,
+    engine: Option<Cow<'a, str>>,
+    developer: Option<Cow<'a, str>>,
+    publisher: Option<Cow<'a, str>>,
+    moderator: Option<Cow<'a, str>>,
+    #[serde(rename = "_bulk")]
+    bulk: Option<bool>,
+    orderby: Option<GamesSorting>,
+    direction: Option<Direction>,
+}
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Game<'a> {
     id: Cow<'a, str>,
-}
-
-impl<'a> Game<'a> {
-    pub fn builder() -> GameBuilder<'a> {
-        GameBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for Game<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/games/{}", self.id).into()
-    }
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -106,26 +96,6 @@ pub struct GameCategories<'a> {
     direction: Option<Direction>,
 }
 
-impl<'a> GameCategories<'a> {
-    pub fn builder() -> GameCategoriesBuilder<'a> {
-        GameCategoriesBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for GameCategories<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/games/{}/categories", self.id).into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
-}
-
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -134,42 +104,6 @@ pub struct GameLevels<'a> {
     id: Cow<'a, str>,
     orderby: Option<LevelsSorting>,
     direction: Option<Direction>,
-}
-
-/// Sorting options for levels
-#[derive(Debug, Serialize, Clone, Copy)]
-#[serde(rename_all = "kebab-case")]
-pub enum LevelsSorting {
-    /// Sorts alphanumerically by the level name
-    Name,
-    /// Sorts by the order defined by the game moderator (default)
-    Pos,
-}
-
-impl Default for LevelsSorting {
-    fn default() -> Self {
-        Self::Pos
-    }
-}
-
-impl<'a> GameLevels<'a> {
-    pub fn builder() -> GameLevelsBuilder<'a> {
-        GameLevelsBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for GameLevels<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/games/{}/levels", self.id).into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -182,30 +116,57 @@ pub struct GameVariables<'a> {
     direction: Option<Direction>,
 }
 
-impl<'a> GameVariables<'a> {
-    pub fn builder() -> GameVariablesBuilder<'a> {
-        GameVariablesBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for GameVariables<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/games/{}/variables", self.id).into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
-}
-
 #[derive(Default, Clone)]
 pub struct GameDerivedGamesBuilder<'a> {
     id: Option<Cow<'a, str>>,
     inner: GamesBuilder<'a>,
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct GameDerivedGames<'a> {
+    id: Cow<'a, str>,
+    inner: Games<'a>,
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
+pub struct GameRecords<'a> {
+    id: Cow<'a, str>,
+    top: Option<i64>,
+    scope: Option<LeaderboardScope>,
+    miscellaneous: Option<bool>,
+    skip_empty: Option<bool>,
+}
+
+impl<'a> Games<'a> {
+    pub fn builder() -> GamesBuilder<'a> {
+        GamesBuilder::default()
+    }
+}
+
+impl<'a> Game<'a> {
+    pub fn builder() -> GameBuilder<'a> {
+        GameBuilder::default()
+    }
+}
+
+impl<'a> GameCategories<'a> {
+    pub fn builder() -> GameCategoriesBuilder<'a> {
+        GameCategoriesBuilder::default()
+    }
+}
+
+impl<'a> GameLevels<'a> {
+    pub fn builder() -> GameLevelsBuilder<'a> {
+        GameLevelsBuilder::default()
+    }
+}
+
+impl<'a> GameVariables<'a> {
+    pub fn builder() -> GameVariablesBuilder<'a> {
+        GameVariablesBuilder::default()
+    }
 }
 
 impl<'a> GameDerivedGamesBuilder<'a> {
@@ -328,23 +289,87 @@ impl<'a> GameDerivedGamesBuilder<'a> {
     }
 }
 
-#[derive(Debug, Error)]
-pub enum GameDerivedGamesBuilderError {
-    #[error("{0} must be initialized")]
-    UninitializedField(&'static str),
-    #[error(transparent)]
-    Inner(#[from] GamesBuilderError),
-}
-
-#[derive(Default, Debug, Clone)]
-pub struct GameDerivedGames<'a> {
-    id: Cow<'a, str>,
-    inner: Games<'a>,
-}
-
 impl<'a> GameDerivedGames<'a> {
     pub fn builder() -> GameDerivedGamesBuilder<'a> {
         GameDerivedGamesBuilder::default()
+    }
+}
+
+impl<'a> GameRecords<'a> {
+    pub fn builder() -> GameRecordsBuilder<'a> {
+        GameRecordsBuilder::default()
+    }
+}
+
+impl Default for LevelsSorting {
+    fn default() -> Self {
+        Self::Pos
+    }
+}
+
+impl<'a> Endpoint for Games<'a> {
+    fn method(&self) -> http::Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        "games".into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl<'a> Endpoint for Game<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/games/{}", self.id).into()
+    }
+}
+
+impl<'a> Endpoint for GameCategories<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/games/{}/categories", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl<'a> Endpoint for GameLevels<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/games/{}/levels", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl<'a> Endpoint for GameVariables<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/games/{}/variables", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
 
@@ -362,33 +387,6 @@ impl<'a> Endpoint for GameDerivedGames<'a> {
     }
 }
 
-impl<'a> Pageable for GameDerivedGames<'a> {}
-
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
-pub struct GameRecords<'a> {
-    id: Cow<'a, str>,
-    top: Option<i64>,
-    scope: Option<LeaderboardScope>,
-    miscellaneous: Option<bool>,
-    skip_empty: Option<bool>,
-}
-
-impl<'a> GameRecords<'a> {
-    pub fn builder() -> GameRecordsBuilder<'a> {
-        GameRecordsBuilder::default()
-    }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(rename_all = "kebab-case")]
-pub enum LeaderboardScope {
-    FullGame,
-    Levels,
-    All,
-}
-
 impl<'a> Endpoint for GameRecords<'a> {
     fn method(&self) -> Method {
         Method::GET
@@ -402,5 +400,9 @@ impl<'a> Endpoint for GameRecords<'a> {
         Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
+
+impl<'a> Pageable for GameDerivedGames<'a> {}
+
+impl<'a> Pageable for Games<'a> {}
 
 impl Pageable for GameRecords<'_> {}

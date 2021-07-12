@@ -3,6 +3,13 @@ use serde::Serialize;
 
 use super::{endpoint::Endpoint, Direction};
 
+/// Sorting options for notifications
+#[derive(Debug, Clone, Serialize, Copy)]
+pub enum NotificationsSorting {
+    /// Sort by the date the notification was created (default)
+    Created,
+}
+
 #[derive(Default, Debug, Builder, Clone, Serialize)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -15,13 +22,6 @@ impl Notifications {
     pub fn builder() -> NotificationsBuilder {
         NotificationsBuilder::default()
     }
-}
-
-/// Sorting options for notifications
-#[derive(Debug, Clone, Serialize, Copy)]
-pub enum NotificationsSorting {
-    /// Sort by the date the notification was created (default)
-    Created,
 }
 
 impl Default for NotificationsSorting {

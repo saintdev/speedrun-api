@@ -12,9 +12,21 @@ pub struct Regions {
     direction: Option<Direction>,
 }
 
+#[derive(Default, Debug, Builder, Clone)]
+#[builder(default, setter(into, strip_option))]
+pub struct Region<'a> {
+    id: Cow<'a, str>,
+}
+
 impl Regions {
     pub fn builder() -> RegionsBuilder {
         RegionsBuilder::default()
+    }
+}
+
+impl<'a> Region<'a> {
+    pub fn builder() -> RegionBuilder<'a> {
+        RegionBuilder::default()
     }
 }
 
@@ -32,20 +44,6 @@ impl Endpoint for Regions {
     }
 }
 
-impl Pageable for Regions {}
-
-#[derive(Default, Debug, Builder, Clone)]
-#[builder(default, setter(into, strip_option))]
-pub struct Region<'a> {
-    id: Cow<'a, str>,
-}
-
-impl<'a> Region<'a> {
-    pub fn builder() -> RegionBuilder<'a> {
-        RegionBuilder::default()
-    }
-}
-
 impl Endpoint for Region<'_> {
     fn method(&self) -> Method {
         Method::GET
@@ -55,3 +53,5 @@ impl Endpoint for Region<'_> {
         format!("/regions/{}", self.id).into()
     }
 }
+
+impl Pageable for Regions {}

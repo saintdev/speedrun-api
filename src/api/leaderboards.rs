@@ -28,26 +28,6 @@ pub struct FullGameLeaderboard<'a> {
      * variables: HashMap<String, String>, */
 }
 
-impl<'a> FullGameLeaderboard<'a> {
-    pub fn builder() -> FullGameLeaderboardBuilder<'a> {
-        FullGameLeaderboardBuilder::default()
-    }
-}
-
-impl<'a> Endpoint for FullGameLeaderboard<'a> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
-    fn endpoint(&self) -> Cow<'static, str> {
-        format!("/leaderboards/{}/category/{}", self.game, self.category).into()
-    }
-
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
-    }
-}
-
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -70,9 +50,29 @@ pub struct IndividualLevelLeaderboard<'a> {
      * variables: HashMap<String, String>, */
 }
 
+impl<'a> FullGameLeaderboard<'a> {
+    pub fn builder() -> FullGameLeaderboardBuilder<'a> {
+        FullGameLeaderboardBuilder::default()
+    }
+}
+
 impl<'a> IndividualLevelLeaderboard<'a> {
     pub fn builder() -> IndividualLevelLeaderboardBuilder<'a> {
         IndividualLevelLeaderboardBuilder::default()
+    }
+}
+
+impl<'a> Endpoint for FullGameLeaderboard<'a> {
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
+    fn endpoint(&self) -> Cow<'static, str> {
+        format!("/leaderboards/{}/category/{}", self.game, self.category).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
 
