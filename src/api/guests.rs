@@ -14,7 +14,7 @@ impl<'a> Guest<'a> {
     }
 }
 
-impl<'a> Endpoint for Guest<'a> {
+impl Endpoint for Guest<'_> {
     fn method(&self) -> Method {
         Method::GET
     }

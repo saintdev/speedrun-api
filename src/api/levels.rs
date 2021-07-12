@@ -66,7 +66,7 @@ impl<'a> LevelRecords<'a> {
     }
 }
 
-impl<'a> Endpoint for Level<'a> {
+impl Endpoint for Level<'_> {
     fn method(&self) -> http::Method {
         Method::GET
     }
@@ -76,7 +76,7 @@ impl<'a> Endpoint for Level<'a> {
     }
 }
 
-impl<'a> Endpoint for LevelCategories<'a> {
+impl Endpoint for LevelCategories<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -90,7 +90,7 @@ impl<'a> Endpoint for LevelCategories<'a> {
     }
 }
 
-impl<'a> Endpoint for LevelVariables<'a> {
+impl Endpoint for LevelVariables<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -104,7 +104,7 @@ impl<'a> Endpoint for LevelVariables<'a> {
     }
 }
 
-impl<'a> Endpoint for LevelRecords<'a> {
+impl Endpoint for LevelRecords<'_> {
     fn method(&self) -> Method {
         Method::GET
     }

@@ -62,7 +62,7 @@ impl<'a> IndividualLevelLeaderboard<'a> {
     }
 }
 
-impl<'a> Endpoint for FullGameLeaderboard<'a> {
+impl Endpoint for FullGameLeaderboard<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -76,7 +76,7 @@ impl<'a> Endpoint for FullGameLeaderboard<'a> {
     }
 }
 
-impl<'a> Endpoint for IndividualLevelLeaderboard<'a> {
+impl Endpoint for IndividualLevelLeaderboard<'_> {
     fn method(&self) -> Method {
         Method::GET
     }

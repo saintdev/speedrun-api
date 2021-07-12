@@ -6,40 +6,38 @@ use serde::Serialize;
 use super::{endpoint::Endpoint, error::BodyError, Direction, Pageable, VariablesSorting};
 
 /// Retrieves a single category, identified by it's ID
-#[derive(Debug, Builder)]
+#[derive(Default, Debug, Builder, Clone)]
+#[builder(default, setter(into, strip_option))]
 pub struct Category<'a> {
-    #[builder(setter(into))]
     #[doc = r"`id` of this category."]
     id: Cow<'a, str>,
 }
 
 /// Retrieves all variables that are applicable to the category identified by
 /// ID.
-#[derive(Debug, Builder, Serialize)]
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
 pub struct CategoryVariables<'a> {
-    #[builder(setter(into))]
     #[serde(skip)]
     #[doc = r"`id` of the category to retrieve variables for."]
     id: Cow<'a, str>,
-    #[builder(default, setter(strip_option))]
     #[doc = r"Sorting for results"]
     orderby: Option<VariablesSorting>,
-    #[builder(default, setter(strip_option))]
     #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
 /// Retrieves the records for the given category id.
-#[derive(Debug, Builder, Serialize)]
+#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[builder(default, setter(into, strip_option))]
+#[serde(rename_all = "kebab-case")]
 pub struct CategoryRecords<'a> {
-    #[builder(setter(into))]
     #[serde(skip)]
     #[doc = r"`id` for the category."]
     id: Cow<'a, str>,
-    #[builder(default)]
     #[doc = r"Return `top` number of places (default: 3)."]
     top: Option<u32>,
-    #[builder(default)]
     #[doc = r"Do not return empty leaderboards when true"]
     skip_empty: Option<bool>,
 }
@@ -65,7 +63,7 @@ impl<'a> CategoryRecords<'a> {
     }
 }
 
-impl<'a> Endpoint for Category<'a> {
+impl Endpoint for Category<'_> {
     fn method(&self) -> http::Method {
         Method::GET
     }
@@ -75,7 +73,7 @@ impl<'a> Endpoint for Category<'a> {
     }
 }
 
-impl<'a> Endpoint for CategoryVariables<'a> {
+impl Endpoint for CategoryVariables<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -89,7 +87,7 @@ impl<'a> Endpoint for CategoryVariables<'a> {
     }
 }
 
-impl<'a> Endpoint for CategoryRecords<'a> {
+impl Endpoint for CategoryRecords<'_> {
     fn method(&self) -> Method {
         Method::GET
     }

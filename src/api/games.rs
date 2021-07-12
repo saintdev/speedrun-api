@@ -41,7 +41,7 @@ pub enum LevelsSorting {
 }
 
 // Does this belong here?
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum LeaderboardScope {
     FullGame,
@@ -78,9 +78,8 @@ pub struct Games<'a> {
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
+#[derive(Default, Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
-#[serde(rename_all = "kebab-case")]
 pub struct Game<'a> {
     id: Cow<'a, str>,
 }
@@ -307,7 +306,7 @@ impl Default for LevelsSorting {
     }
 }
 
-impl<'a> Endpoint for Games<'a> {
+impl Endpoint for Games<'_> {
     fn method(&self) -> http::Method {
         Method::GET
     }
@@ -321,7 +320,7 @@ impl<'a> Endpoint for Games<'a> {
     }
 }
 
-impl<'a> Endpoint for Game<'a> {
+impl Endpoint for Game<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -331,7 +330,7 @@ impl<'a> Endpoint for Game<'a> {
     }
 }
 
-impl<'a> Endpoint for GameCategories<'a> {
+impl Endpoint for GameCategories<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -345,7 +344,7 @@ impl<'a> Endpoint for GameCategories<'a> {
     }
 }
 
-impl<'a> Endpoint for GameLevels<'a> {
+impl Endpoint for GameLevels<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -359,7 +358,7 @@ impl<'a> Endpoint for GameLevels<'a> {
     }
 }
 
-impl<'a> Endpoint for GameVariables<'a> {
+impl Endpoint for GameVariables<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -373,7 +372,7 @@ impl<'a> Endpoint for GameVariables<'a> {
     }
 }
 
-impl<'a> Endpoint for GameDerivedGames<'a> {
+impl Endpoint for GameDerivedGames<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -387,7 +386,7 @@ impl<'a> Endpoint for GameDerivedGames<'a> {
     }
 }
 
-impl<'a> Endpoint for GameRecords<'a> {
+impl Endpoint for GameRecords<'_> {
     fn method(&self) -> Method {
         Method::GET
     }
@@ -401,8 +400,8 @@ impl<'a> Endpoint for GameRecords<'a> {
     }
 }
 
-impl<'a> Pageable for GameDerivedGames<'a> {}
+impl Pageable for GameDerivedGames<'_> {}
 
-impl<'a> Pageable for Games<'a> {}
+impl Pageable for Games<'_> {}
 
 impl Pageable for GameRecords<'_> {}
