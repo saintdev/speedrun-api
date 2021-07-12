@@ -1,5 +1,6 @@
 mod category;
 mod common;
+mod developers;
 mod games;
 mod guests;
 mod leaderboards;
@@ -17,6 +18,7 @@ mod variables;
 
 pub use category::{Category, CategoryType, Players};
 pub use common::{Asset, Assets, Link, ModeratorRole, Names, Pagination, TimingMethod};
+pub use developers::Developer;
 pub use games::{Game, Ruleset};
 pub use guests::Guest;
 pub use leaderboards::{Leaderboard, RankedRun};

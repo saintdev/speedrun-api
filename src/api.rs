@@ -1,6 +1,7 @@
 pub mod categories;
 mod client;
 mod common;
+pub mod developers;
 mod endpoint;
 mod error;
 pub mod games;
