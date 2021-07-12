@@ -3,6 +3,7 @@ mod client;
 mod common;
 pub mod developers;
 mod endpoint;
+pub mod engines;
 mod error;
 pub mod games;
 pub mod guests;
