@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use http::{HeaderMap, HeaderValue};
 use thiserror::Error;
 
@@ -11,7 +13,7 @@ pub enum AuthError {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) struct Auth {
     pub(crate) token: Option<String>,
 }
@@ -28,5 +30,15 @@ impl Auth {
         }
 
         Ok(headers)
+    }
+}
+
+impl Debug for Auth {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.token.is_some() {
+            write!(f, "Yes")
+        } else {
+            write!(f, "No")
+        }
     }
 }
