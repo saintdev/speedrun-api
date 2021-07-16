@@ -5,8 +5,28 @@ use serde::Serialize;
 use thiserror::Error;
 
 use super::{
-    endpoint::Endpoint, error::BodyError, CategoriesSorting, Direction, Pageable, VariablesSorting,
+    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds, CategoriesSorting,
+    Direction, Pageable, VariablesSorting,
 };
+
+/// Embeds available for games
+///
+/// NOTE: Embeds can be nested. That is not handled by this API.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum GameEmbeds {
+    Levels,
+    Categories,
+    Moderators,
+    Gametypes,
+    Platforms,
+    Regions,
+    Genres,
+    Engines,
+    Developers,
+    Publishers,
+    Variables,
+}
 
 /// Sorting options for games
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -76,6 +96,7 @@ pub struct Games<'a> {
     bulk: Option<bool>,
     orderby: Option<GamesSorting>,
     direction: Option<Direction>,
+    embed: Option<Vec<GameEmbeds>>,
 }
 
 #[derive(Default, Debug, Builder, Clone)]
@@ -136,6 +157,7 @@ pub struct GameRecords<'a> {
     scope: Option<LeaderboardScope>,
     miscellaneous: Option<bool>,
     skip_empty: Option<bool>,
+    embed: Option<Vec<LeaderboardEmbeds>>,
 }
 
 impl<'a> Games<'a> {

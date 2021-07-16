@@ -10,6 +10,13 @@ use super::{
     Direction, Pageable,
 };
 
+/// Embeds available for series.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum SeriesEmbeds {
+    Moderators,
+}
+
 /// Sorting options for game series
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
@@ -43,6 +50,7 @@ pub struct ListSeries<'a> {
     moderator: Option<Cow<'a, str>>,
     orderby: Option<SeriesSorting>,
     direction: Option<Direction>,
+    embed: Option<Vec<SeriesEmbeds>>,
 }
 
 #[derive(Default, Debug, Builder, Clone)]

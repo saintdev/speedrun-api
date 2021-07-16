@@ -3,12 +3,25 @@ use std::borrow::Cow;
 use http::Method;
 use serde::Serialize;
 
-use super::{endpoint::Endpoint, CategoriesSorting, Direction, Pageable, VariablesSorting};
+use super::{
+    endpoint::Endpoint, leaderboards::LeaderboardEmbeds, CategoriesSorting, Direction, Pageable,
+    VariablesSorting,
+};
 
-#[derive(Default, Debug, Builder, Clone)]
+/// Embeds available for levels.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LevelEmbeds {
+    Categories,
+    Variables,
+}
+
+#[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 pub struct Level<'a> {
+    #[serde(skip)]
     id: Cow<'a, str>,
+    embeds: Option<Vec<LevelEmbeds>>,
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -40,6 +53,7 @@ pub struct LevelRecords<'a> {
     id: Cow<'a, str>,
     top: Option<i64>,
     skip_empty: Option<bool>,
+    embed: Option<Vec<LeaderboardEmbeds>>,
 }
 
 impl<'a> Level<'a> {
@@ -73,6 +87,10 @@ impl Endpoint for Level<'_> {
 
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/levels/{}", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
 

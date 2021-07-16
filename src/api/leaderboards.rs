@@ -8,6 +8,21 @@ use crate::{
     types::TimingMethod,
 };
 
+/// Embeds available for leaderboards.
+///
+/// NOTE: Embeds can be nested. That is not handled by this API.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LeaderboardEmbeds {
+    Game,
+    Category,
+    Level,
+    Players,
+    Regions,
+    Platforms,
+    Variables,
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -26,6 +41,7 @@ pub struct FullGameLeaderboard<'a> {
     date: Option<String>,
     /*TODO
      * variables: HashMap<String, String>, */
+    embed: Option<Vec<LeaderboardEmbeds>>,
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -48,6 +64,7 @@ pub struct IndividualLevelLeaderboard<'a> {
     date: Option<String>,
     /*TODO
      * variables: HashMap<String, String>, */
+    embed: Option<Vec<LeaderboardEmbeds>>,
 }
 
 impl<'a> FullGameLeaderboard<'a> {

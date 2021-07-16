@@ -5,6 +5,20 @@ use serde::Serialize;
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
+/// Embeds available for runs.
+///
+/// NOTE: Embeds can be nested. That is not handled by this API.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RunEmbeds {
+    Game,
+    Category,
+    Level,
+    Players,
+    Region,
+    Platform,
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum RunStatus {
@@ -87,6 +101,7 @@ pub struct Runs<'a> {
     status: Option<RunStatus>,
     orderby: Option<RunsSorting>,
     direction: Option<Direction>,
+    embed: Option<Vec<RunEmbeds>>,
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]

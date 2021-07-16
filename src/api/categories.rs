@@ -3,14 +3,30 @@ use std::borrow::Cow;
 use http::Method;
 use serde::Serialize;
 
-use super::{endpoint::Endpoint, error::BodyError, Direction, Pageable, VariablesSorting};
+use super::{
+    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds, Direction, Pageable,
+    VariablesSorting,
+};
+
+/// Embeds available for categories.
+///
+/// NOTE: Embeds can be nested. That is not handled by this API.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CategoryEmbeds {
+    Game,
+    Variables,
+}
 
 /// Retrieves a single category, identified by it's ID
-#[derive(Default, Debug, Builder, Clone)]
+#[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 pub struct Category<'a> {
+    #[serde(skip)]
     #[doc = r"`id` of this category."]
     id: Cow<'a, str>,
+    #[doc = r"Resources to embed in the result"]
+    embed: Option<Vec<CategoryEmbeds>>,
 }
 
 /// Retrieves all variables that are applicable to the category identified by
@@ -40,6 +56,7 @@ pub struct CategoryRecords<'a> {
     top: Option<u32>,
     #[doc = r"Do not return empty leaderboards when true"]
     skip_empty: Option<bool>,
+    embed: Vec<LeaderboardEmbeds>,
 }
 
 impl<'a> Category<'a> {
@@ -70,6 +87,10 @@ impl Endpoint for Category<'_> {
 
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/categories/{}", self.id).into()
+    }
+
+    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
+        Ok(serde_urlencoded::to_string(self)?.into())
     }
 }
 

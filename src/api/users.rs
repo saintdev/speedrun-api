@@ -2,7 +2,7 @@ use http::Method;
 use serde::Serialize;
 use std::borrow::Cow;
 
-use super::{endpoint::Endpoint, Direction, Pageable};
+use super::{endpoint::Endpoint, runs::RunEmbeds, Direction, Pageable};
 
 /// Sorting options for users
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -49,6 +49,7 @@ pub struct UserPersonalBests<'a> {
     top: Option<i64>,
     series: Option<Cow<'a, str>>,
     game: Option<Cow<'a, str>>,
+    embed: Option<Vec<RunEmbeds>>,
 }
 
 impl<'a> Users<'a> {
