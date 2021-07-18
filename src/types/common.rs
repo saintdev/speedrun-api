@@ -51,7 +51,7 @@ pub struct Assets {
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct Asset {
-    pub uri: String,
+    pub uri: Option<String>,
     pub width: Option<i64>,
     pub height: Option<i64>,
 }
