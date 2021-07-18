@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use futures::{stream::LocalBoxStream, StreamExt, TryStreamExt};
+use futures::{stream::BoxStream, StreamExt, TryStreamExt};
 use http::{header, Request};
 use serde::de::DeserializeOwned;
 
@@ -29,7 +29,7 @@ pub trait PagedEndpointExt<'a, E> {
     fn single_page(&'a self) -> SinglePageBuilder<'a, E>;
 
     /// Create an async stream over the results of the paginated endpoint.
-    fn stream<T, C>(&'a self, client: &'a C) -> LocalBoxStream<'a, Result<T, ApiError<C::Error>>>
+    fn stream<T, C>(&'a self, client: &'a C) -> BoxStream<'a, Result<T, ApiError<C::Error>>>
     where
         T: DeserializeOwned + Send + 'static,
         C: AsyncClient + Sync,
@@ -224,7 +224,7 @@ where
         SinglePageBuilder::new(self)
     }
 
-    fn stream<T, C>(&'a self, client: &'a C) -> LocalBoxStream<'_, Result<T, ApiError<C::Error>>>
+    fn stream<T, C>(&'a self, client: &'a C) -> BoxStream<'_, Result<T, ApiError<C::Error>>>
     where
         T: DeserializeOwned + Send + 'static,
         C: AsyncClient + Sync,
@@ -254,7 +254,7 @@ where
             }
         })
         .try_flatten()
-        .boxed_local()
+        .boxed()
     }
 }
 
