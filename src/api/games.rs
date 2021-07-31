@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeSet};
 
 use http::Method;
 use serde::Serialize;
@@ -12,8 +12,7 @@ use super::{
 /// Embeds available for games
 ///
 /// NOTE: Embeds can be nested. That is not handled by this API.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum GameEmbeds {
     Levels,
     Categories,
@@ -96,7 +95,10 @@ pub struct Games<'a> {
     bulk: Option<bool>,
     orderby: Option<GamesSorting>,
     direction: Option<Direction>,
-    embed: Option<Vec<GameEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<GameEmbeds>,
 }
 
 #[derive(Default, Debug, Builder, Clone)]
@@ -157,12 +159,30 @@ pub struct GameRecords<'a> {
     scope: Option<LeaderboardScope>,
     miscellaneous: Option<bool>,
     skip_empty: Option<bool>,
-    embed: Option<Vec<LeaderboardEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<LeaderboardEmbeds>,
 }
 
 impl<'a> Games<'a> {
     pub fn builder() -> GamesBuilder<'a> {
         GamesBuilder::default()
+    }
+}
+
+impl<'a> GamesBuilder<'a> {
+    pub fn embed(&mut self, embed: GameEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = GameEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
     }
 }
 
@@ -322,6 +342,39 @@ impl<'a> GameRecords<'a> {
     }
 }
 
+impl<'a> GameRecordsBuilder<'a> {
+    pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = LeaderboardEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
+    }
+}
+
+impl GameEmbeds {
+    fn as_str(&self) -> &'static str {
+        match self {
+            GameEmbeds::Levels => "levels",
+            GameEmbeds::Categories => "categories",
+            GameEmbeds::Moderators => "moderators",
+            GameEmbeds::Gametypes => "gametypes",
+            GameEmbeds::Platforms => "platforms",
+            GameEmbeds::Regions => "regions",
+            GameEmbeds::Genres => "genres",
+            GameEmbeds::Engines => "engines",
+            GameEmbeds::Developers => "developers",
+            GameEmbeds::Publishers => "publishers",
+            GameEmbeds::Variables => "variables",
+        }
+    }
+}
+
 impl Default for LevelsSorting {
     fn default() -> Self {
         Self::Pos
@@ -419,6 +472,12 @@ impl Endpoint for GameRecords<'_> {
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
         Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl From<&GameEmbeds> for &'static str {
+    fn from(value: &GameEmbeds) -> Self {
+        value.as_str()
     }
 }
 

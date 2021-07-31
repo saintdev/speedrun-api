@@ -1,4 +1,7 @@
-use std::{borrow::Cow, collections::HashMap};
+use std::{
+    borrow::Cow,
+    collections::{BTreeSet, HashMap},
+};
 
 use http::Method;
 use serde::Serialize;
@@ -8,8 +11,7 @@ use super::{endpoint::Endpoint, Direction, Pageable};
 /// Embeds available for runs.
 ///
 /// NOTE: Embeds can be nested. That is not handled by this API.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RunEmbeds {
     Game,
     Category,
@@ -101,7 +103,10 @@ pub struct Runs<'a> {
     status: Option<RunStatus>,
     orderby: Option<RunsSorting>,
     direction: Option<Direction>,
-    embed: Option<Vec<RunEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<RunEmbeds>,
 }
 
 #[derive(Default, Debug, Builder, Serialize, Clone)]
@@ -169,6 +174,21 @@ impl<'a> Runs<'a> {
     }
 }
 
+impl<'a> RunsBuilder<'a> {
+    pub fn embed(&mut self, embed: RunEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = RunEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
+    }
+}
+
 impl<'a> Run<'a> {
     pub fn builder() -> RunBuilder<'a> {
         RunBuilder::default()
@@ -196,6 +216,19 @@ impl<'a> UpdateRunPlayers<'a> {
 impl<'a> DeleteRun<'a> {
     pub fn builder() -> DeleteRunBuilder<'a> {
         DeleteRunBuilder::default()
+    }
+}
+
+impl RunEmbeds {
+    fn as_str(&self) -> &'static str {
+        match self {
+            RunEmbeds::Game => "game",
+            RunEmbeds::Category => "category",
+            RunEmbeds::Level => "level",
+            RunEmbeds::Players => "players",
+            RunEmbeds::Region => "region",
+            RunEmbeds::Platform => "platform",
+        }
     }
 }
 
@@ -294,6 +327,12 @@ impl Endpoint for DeleteRun<'_> {
 
     fn requires_authentication(&self) -> bool {
         true
+    }
+}
+
+impl From<&RunEmbeds> for &'static str {
+    fn from(value: &RunEmbeds) -> Self {
+        value.as_str()
     }
 }
 

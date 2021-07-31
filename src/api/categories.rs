@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeSet};
 
 use http::Method;
 use serde::Serialize;
@@ -11,8 +11,7 @@ use super::{
 /// Embeds available for categories.
 ///
 /// NOTE: Embeds can be nested. That is not handled by this API.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CategoryEmbeds {
     Game,
     Variables,
@@ -25,8 +24,10 @@ pub struct Category<'a> {
     #[serde(skip)]
     #[doc = r"`id` of this category."]
     id: Cow<'a, str>,
-    #[doc = r"Resources to embed in the result"]
-    embed: Option<Vec<CategoryEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<CategoryEmbeds>,
 }
 
 /// Retrieves all variables that are applicable to the category identified by
@@ -56,13 +57,33 @@ pub struct CategoryRecords<'a> {
     top: Option<u32>,
     #[doc = r"Do not return empty leaderboards when true"]
     skip_empty: Option<bool>,
-    embed: Vec<LeaderboardEmbeds>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<LeaderboardEmbeds>,
 }
 
 impl<'a> Category<'a> {
     /// Create a builder for this endpoint
     pub fn builder() -> CategoryBuilder<'a> {
         CategoryBuilder::default()
+    }
+}
+
+impl<'a> CategoryBuilder<'a> {
+    /// Add an embedded resource to this result
+    pub fn embed(&mut self, embed: CategoryEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    /// Add multiple embedded resources to this result
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = CategoryEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
     }
 }
 
@@ -77,6 +98,32 @@ impl<'a> CategoryRecords<'a> {
     /// Create a builder for this endpoint
     pub fn builder() -> CategoryRecordsBuilder<'a> {
         CategoryRecordsBuilder::default()
+    }
+}
+
+impl<'a> CategoryRecordsBuilder<'a> {
+    /// Add an embedded resource to this result
+    pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    /// Add multiple embedded resources to this result
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = LeaderboardEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
+    }
+}
+
+impl CategoryEmbeds {
+    fn as_str(&self) -> &'static str {
+        match self {
+            CategoryEmbeds::Game => "game",
+            CategoryEmbeds::Variables => "variables",
+        }
     }
 }
 
@@ -119,6 +166,12 @@ impl Endpoint for CategoryRecords<'_> {
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
         Ok(serde_urlencoded::to_string(self)?.into())
+    }
+}
+
+impl From<&CategoryEmbeds> for &'static str {
+    fn from(value: &CategoryEmbeds) -> Self {
+        value.as_str()
     }
 }
 

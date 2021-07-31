@@ -1,6 +1,6 @@
 use http::Method;
 use serde::Serialize;
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeSet};
 
 use super::{endpoint::Endpoint, runs::RunEmbeds, Direction, Pageable};
 
@@ -49,7 +49,10 @@ pub struct UserPersonalBests<'a> {
     top: Option<i64>,
     series: Option<Cow<'a, str>>,
     game: Option<Cow<'a, str>>,
-    embed: Option<Vec<RunEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<RunEmbeds>,
 }
 
 impl<'a> Users<'a> {
@@ -67,6 +70,21 @@ impl<'a> User<'a> {
 impl<'a> UserPersonalBests<'a> {
     pub fn builder() -> UserPersonalBestsBuilder<'a> {
         UserPersonalBestsBuilder::default()
+    }
+}
+
+impl<'a> UserPersonalBestsBuilder<'a> {
+    pub fn embed(&mut self, embed: RunEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = RunEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
     }
 }
 

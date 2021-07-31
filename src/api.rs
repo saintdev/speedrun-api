@@ -21,6 +21,7 @@ pub mod regions;
 pub mod runs;
 pub mod series;
 pub mod users;
+mod utils;
 pub mod variables;
 
 pub use client::{AsyncClient, Client, RestClient};

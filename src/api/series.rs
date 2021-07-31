@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::BTreeSet};
 
 use http::Method;
 use serde::Serialize;
@@ -11,8 +11,7 @@ use super::{
 };
 
 /// Embeds available for series.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SeriesEmbeds {
     Moderators,
 }
@@ -50,7 +49,10 @@ pub struct ListSeries<'a> {
     moderator: Option<Cow<'a, str>>,
     orderby: Option<SeriesSorting>,
     direction: Option<Direction>,
-    embed: Option<Vec<SeriesEmbeds>>,
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<SeriesEmbeds>,
 }
 
 #[derive(Default, Debug, Builder, Clone)]
@@ -74,6 +76,21 @@ pub struct SeriesGamesBuilder<'a> {
 impl<'a> ListSeries<'a> {
     pub fn builder() -> ListSeriesBuilder<'a> {
         ListSeriesBuilder::default()
+    }
+}
+
+impl<'a> ListSeriesBuilder<'a> {
+    pub fn embed(&mut self, embed: SeriesEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = SeriesEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
     }
 }
 
@@ -216,6 +233,14 @@ impl<'a> SeriesGamesBuilder<'a> {
     }
 }
 
+impl SeriesEmbeds {
+    fn as_str(&self) -> &'static str {
+        match self {
+            SeriesEmbeds::Moderators => "moderators",
+        }
+    }
+}
+
 impl Default for SeriesSorting {
     fn default() -> Self {
         Self::NameInternational
@@ -257,6 +282,12 @@ impl Endpoint for SeriesGames<'_> {
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
         Ok(serde_urlencoded::to_string(&self.inner)?.into())
+    }
+}
+
+impl From<&SeriesEmbeds> for &'static str {
+    fn from(value: &SeriesEmbeds) -> Self {
+        value.as_str()
     }
 }
 
