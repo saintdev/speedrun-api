@@ -20,6 +20,7 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //TODO:
 //      - Tests
 //      - declare_endpoint!() macro?
-//      - Handle embeds?
 //      - Endpoint builder errors
 //      - ID types/type aliases
+//      - Handle other collection builders, such as CreateRun.players, in a
+//        similar fashion to embeds
