@@ -1,12 +1,20 @@
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use super::{
+    developers::DeveloperId,
     endpoint::Endpoint,
+    engines::EngineId,
     games::{Games, GamesBuilder, GamesBuilderError, GamesSorting},
+    gametypes::GameTypeId,
+    genres::GenreId,
+    platforms::PlatformId,
+    publishers::PublisherId,
+    regions::RegionId,
+    users::UserId,
     Direction, Pageable,
 };
 
@@ -40,13 +48,40 @@ pub enum SeriesGamesBuilderError {
     Inner(#[from] GamesBuilderError),
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct SeriesId<'a>(Cow<'a, str>);
+
+impl<'a> SeriesId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for SeriesId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for SeriesId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct ListSeries<'a> {
     name: Option<Cow<'a, str>>,
     abbreviation: Option<Cow<'a, str>>,
-    moderator: Option<Cow<'a, str>>,
+    moderator: Option<UserId<'a>>,
     orderby: Option<SeriesSorting>,
     direction: Option<Direction>,
     #[builder(setter(name = "_embed"), private)]
@@ -55,21 +90,21 @@ pub struct ListSeries<'a> {
     embed: BTreeSet<SeriesEmbeds>,
 }
 
-#[derive(Default, Debug, Builder, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct Series<'a> {
-    id: Cow<'a, str>,
+    id: SeriesId<'a>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct SeriesGames<'a> {
-    id: Cow<'a, str>,
+    id: SeriesId<'a>,
     inner: Games<'a>,
 }
 
 #[derive(Default, Clone)]
 pub struct SeriesGamesBuilder<'a> {
-    id: Option<Cow<'a, str>>,
+    id: Option<SeriesId<'a>>,
     inner: GamesBuilder<'a>,
 }
 
@@ -114,7 +149,7 @@ impl<'a> SeriesGamesBuilder<'a> {
     /// Set the series games builder's id.
     pub fn id<S>(&mut self, id: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<SeriesId<'a>>,
     {
         self.id = Some(id.into());
         self
@@ -143,7 +178,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn gametype<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<GameTypeId<'a>>,
     {
         self.inner.gametype(value);
         self
@@ -151,7 +186,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn platform<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<PlatformId<'a>>,
     {
         self.inner.platform(value);
         self
@@ -159,7 +194,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn region<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<RegionId<'a>>,
     {
         self.inner.region(value);
         self
@@ -167,7 +202,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn genre<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<GenreId<'a>>,
     {
         self.inner.genre(value);
         self
@@ -175,7 +210,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn engine<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<EngineId<'a>>,
     {
         self.inner.engine(value);
         self
@@ -183,7 +218,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn developer<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<DeveloperId<'a>>,
     {
         self.inner.developer(value);
         self
@@ -191,7 +226,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn publisher<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<PublisherId<'a>>,
     {
         self.inner.publisher(value);
         self
@@ -199,7 +234,7 @@ impl<'a> SeriesGamesBuilder<'a> {
 
     pub fn moderator<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<UserId<'a>>,
     {
         self.inner.moderator(value);
         self

@@ -1,11 +1,13 @@
 use serde::Deserialize;
 
+use crate::api::platforms::PlatformId;
+
 use super::Link;
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Platform {
-    pub id: String,
+pub struct Platform<'a> {
+    pub id: PlatformId<'a>,
     pub name: String,
     pub released: i64,
     pub links: Vec<Link>,

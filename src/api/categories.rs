@@ -1,7 +1,7 @@
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::{
     endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds, Direction, Pageable,
@@ -17,14 +17,42 @@ pub enum CategoryEmbeds {
     Variables,
 }
 
+/// Represents a category ID
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct CategoryId<'a>(Cow<'a, str>);
+
+impl<'a> CategoryId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for CategoryId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        CategoryId::new(value)
+    }
+}
+
+impl Display for CategoryId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 /// Retrieves a single category, identified by it's ID
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct Category<'a> {
     #[serde(skip)]
     #[doc = r"`id` of this category."]
-    id: Cow<'a, str>,
-    #[builder(setter(name = "_embed"), private)]
+    id: CategoryId<'a>,
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<CategoryEmbeds>,
@@ -32,32 +60,36 @@ pub struct Category<'a> {
 
 /// Retrieves all variables that are applicable to the category identified by
 /// ID.
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct CategoryVariables<'a> {
     #[serde(skip)]
     #[doc = r"`id` of the category to retrieve variables for."]
-    id: Cow<'a, str>,
+    id: CategoryId<'a>,
     #[doc = r"Sorting for results"]
+    #[builder(default)]
     orderby: Option<VariablesSorting>,
     #[doc = r"Sort direction"]
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
 /// Retrieves the records for the given category id.
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct CategoryRecords<'a> {
     #[serde(skip)]
     #[doc = r"`id` for the category."]
-    id: Cow<'a, str>,
+    id: CategoryId<'a>,
     #[doc = r"Return `top` number of places (default: 3)."]
+    #[builder(default)]
     top: Option<u32>,
     #[doc = r"Do not return empty leaderboards when true"]
+    #[builder(default)]
     skip_empty: Option<bool>,
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LeaderboardEmbeds>,

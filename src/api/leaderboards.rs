@@ -8,6 +8,11 @@ use crate::{
     types::TimingMethod,
 };
 
+use super::{
+    categories::CategoryId, games::GameId, levels::LevelId, platforms::PlatformId,
+    regions::RegionId,
+};
+
 /// Embeds available for leaderboards.
 ///
 /// NOTE: Embeds can be nested. That is not handled by this API.
@@ -22,51 +27,65 @@ pub enum LeaderboardEmbeds {
     Variables,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct FullGameLeaderboard<'a> {
     #[serde(skip)]
-    game: Cow<'a, str>,
+    game: GameId<'a>,
     #[serde(skip)]
-    category: Cow<'a, str>,
+    category: CategoryId<'a>,
     // NOTE: Make this a common struct?
+    #[builder(default)]
     top: Option<i64>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
+    #[builder(default)]
+    platform: Option<PlatformId<'a>>,
+    #[builder(default)]
+    region: Option<RegionId<'a>>,
+    #[builder(default)]
     emulators: Option<bool>,
+    #[builder(default)]
     video_only: Option<bool>,
+    #[builder(default)]
     timing: Option<TimingMethod>,
+    #[builder(default)]
     date: Option<String>,
     /*TODO
      * variables: HashMap<String, String>, */
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LeaderboardEmbeds>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct IndividualLevelLeaderboard<'a> {
     #[serde(skip)]
-    game: Cow<'a, str>,
+    game: GameId<'a>,
     #[serde(skip)]
-    level: Cow<'a, str>,
+    level: LevelId<'a>,
     #[serde(skip)]
-    category: Cow<'a, str>,
+    category: CategoryId<'a>,
     // NOTE: Make this a common struct?
+    #[builder(default)]
     top: Option<i64>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
+    #[builder(default)]
+    platform: Option<PlatformId<'a>>,
+    #[builder(default)]
+    region: Option<RegionId<'a>>,
+    #[builder(default)]
     emulators: Option<bool>,
+    #[builder(default)]
     video_only: Option<bool>,
+    #[builder(default)]
     timing: Option<TimingMethod>,
+    #[builder(default)]
     date: Option<String>,
     /*TODO
      * variables: HashMap<String, String>, */
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LeaderboardEmbeds>,

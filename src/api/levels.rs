@@ -1,7 +1,7 @@
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::{
     endpoint::Endpoint, leaderboards::LeaderboardEmbeds, CategoriesSorting, Direction, Pageable,
@@ -15,47 +15,81 @@ pub enum LevelEmbeds {
     Variables,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LevelId<'a>(Cow<'a, str>);
+
+impl<'a> LevelId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for LevelId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        LevelId::new(value)
+    }
+}
+
+impl Display for LevelId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct Level<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
-    #[builder(setter(name = "_embed"), private)]
+    id: LevelId<'a>,
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LevelEmbeds>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelCategories<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: LevelId<'a>,
+    #[builder(default)]
     miscellaneous: Option<bool>,
+    #[builder(default)]
     orderby: Option<CategoriesSorting>,
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelVariables<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: LevelId<'a>,
+    #[builder(default)]
     orderby: Option<VariablesSorting>,
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelRecords<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: LevelId<'a>,
+    #[builder(default)]
     top: Option<i64>,
+    #[builder(default)]
     skip_empty: Option<bool>,
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LeaderboardEmbeds>,

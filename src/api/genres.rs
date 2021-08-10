@@ -1,7 +1,7 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
@@ -13,6 +13,33 @@ pub enum GenresSorting {
     Name,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct GenreId<'a>(Cow<'a, str>);
+
+impl<'a> GenreId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for GenreId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for GenreId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -21,10 +48,10 @@ pub struct Genres {
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct Genre<'a> {
-    id: Cow<'a, str>,
+    id: GenreId<'a>,
 }
 
 impl Genres {

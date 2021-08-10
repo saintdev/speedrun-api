@@ -1,11 +1,13 @@
 use serde::Deserialize;
 
+use crate::api::categories::CategoryId;
+
 use super::Link;
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Category {
-    pub id: String,
+pub struct Category<'a> {
+    pub id: CategoryId<'a>,
     pub name: String,
     pub weblink: String,
     #[serde(rename = "type")]

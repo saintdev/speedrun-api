@@ -1,7 +1,7 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
@@ -13,6 +13,33 @@ pub enum DevelopersSorting {
     Name,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct DeveloperId<'a>(Cow<'a, str>);
+
+impl<'a> DeveloperId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for DeveloperId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for DeveloperId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -21,10 +48,10 @@ pub struct Developers {
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct Developer<'a> {
-    id: Cow<'a, str>,
+    id: DeveloperId<'a>,
 }
 
 impl Developers {

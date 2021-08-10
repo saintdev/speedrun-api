@@ -1,7 +1,7 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
@@ -15,6 +15,33 @@ pub enum PlatformsSorting {
     Released,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct PlatformId<'a>(Cow<'a, str>);
+
+impl<'a> PlatformId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for PlatformId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for PlatformId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -23,11 +50,11 @@ pub struct Platforms {
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Platform<'a> {
-    id: Cow<'a, str>,
+    id: PlatformId<'a>,
 }
 
 impl Platforms {

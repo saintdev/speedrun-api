@@ -1,8 +1,9 @@
-use http::Method;
-use serde::Serialize;
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use super::{endpoint::Endpoint, runs::RunEmbeds, Direction, Pageable};
+use http::Method;
+use serde::{Deserialize, Serialize};
+
+use super::{endpoint::Endpoint, games::GameId, runs::RunEmbeds, Direction, Pageable};
 
 /// Sorting options for users
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -20,6 +21,33 @@ pub enum UsersSorting {
     Role,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
+pub struct UserId<'a>(Cow<'a, str>);
+
+impl<'a> UserId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for UserId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for UserId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -34,22 +62,25 @@ pub struct Users<'a> {
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Clone)]
+#[builder(setter(into, strip_option))]
 pub struct User<'a> {
-    id: Cow<'a, str>,
+    id: UserId<'a>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct UserPersonalBests<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: UserId<'a>,
+    #[builder(default)]
     top: Option<i64>,
+    #[builder(default)]
     series: Option<Cow<'a, str>>,
-    game: Option<Cow<'a, str>>,
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(default)]
+    game: Option<GameId<'a>>,
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<RunEmbeds>,

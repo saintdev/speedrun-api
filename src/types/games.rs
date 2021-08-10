@@ -2,25 +2,31 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
+use crate::api::{
+    developers::DeveloperId, engines::EngineId, games::GameId, gametypes::GameTypeId,
+    genres::GenreId, platforms::PlatformId, publishers::PublisherId, regions::RegionId,
+    users::UserId,
+};
+
 use super::{Assets, Link, ModeratorRole, Names, TimingMethod};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Game {
-    pub id: String,
+pub struct Game<'a> {
+    pub id: GameId<'a>,
     pub names: Names,
     pub abbreviation: String,
     pub weblink: String,
     pub release_date: String,
     pub ruleset: Ruleset,
-    pub gametypes: Vec<String>,
-    pub platforms: Vec<String>,
-    pub regions: Vec<String>,
-    pub genres: Vec<String>,
-    pub engines: Vec<String>,
-    pub developers: Vec<String>,
-    pub publishers: Vec<String>,
-    pub moderators: HashMap<String, ModeratorRole>,
+    pub gametypes: Vec<GameTypeId<'a>>,
+    pub platforms: Vec<PlatformId<'a>>,
+    pub regions: Vec<RegionId<'a>>,
+    pub genres: Vec<GenreId<'a>>,
+    pub engines: Vec<EngineId<'a>>,
+    pub developers: Vec<DeveloperId<'a>>,
+    pub publishers: Vec<PublisherId<'a>>,
+    pub moderators: HashMap<UserId<'a>, ModeratorRole>,
     pub created: Option<String>,
     pub assets: Assets,
     pub links: Vec<Link>,

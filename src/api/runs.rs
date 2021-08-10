@@ -1,12 +1,23 @@
 use std::{
     borrow::Cow,
     collections::{BTreeSet, HashMap},
+    fmt::Display,
 };
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-use super::{endpoint::Endpoint, Direction, Pageable};
+use super::{
+    categories::CategoryId,
+    endpoint::Endpoint,
+    games::GameId,
+    levels::LevelId,
+    platforms::PlatformId,
+    regions::RegionId,
+    users::UserId,
+    variables::{ValueId, VariableId},
+    Direction, Pageable,
+};
 
 /// Embeds available for runs.
 ///
@@ -58,9 +69,9 @@ pub enum RunsSorting {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "rel")]
-pub enum Player {
-    User { id: String },
-    Guest { name: String },
+pub enum Player<'a> {
+    User { id: UserId<'a> },
+    Guest { name: Cow<'a, str> },
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -74,9 +85,9 @@ pub enum SplitsIo {
 // Does this belong here?
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "kebab-case")]
-pub enum VariableType {
-    PreDefined { value: String },
-    UserDefined { value: String },
+pub enum VariableType<'a> {
+    PreDefined { value: ValueId<'a> },
+    UserDefined { value: ValueId<'a> },
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -87,18 +98,45 @@ pub enum NewStatus {
     Rejected { reason: String },
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct RunId<'a>(Cow<'a, str>);
+
+impl<'a> RunId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for RunId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for RunId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Runs<'a> {
-    user: Option<Cow<'a, str>>,
+    user: Option<UserId<'a>>,
     guest: Option<Cow<'a, str>>,
-    examiner: Option<Cow<'a, str>>,
-    game: Option<Cow<'a, str>>,
-    level: Option<Cow<'a, str>>,
-    category: Option<Cow<'a, str>>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
+    examiner: Option<UserId<'a>>,
+    game: Option<GameId<'a>>,
+    level: Option<LevelId<'a>>,
+    category: Option<CategoryId<'a>>,
+    platform: Option<PlatformId<'a>>,
+    region: Option<RegionId<'a>>,
     emulated: Option<bool>,
     status: Option<RunStatus>,
     orderby: Option<RunsSorting>,
@@ -109,30 +147,42 @@ pub struct Runs<'a> {
     embed: BTreeSet<RunEmbeds>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Run<'a> {
-    id: Cow<'a, str>,
+    id: RunId<'a>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct CreateRun<'a> {
-    category: Cow<'a, str>,
-    level: Option<Cow<'a, str>>,
+    category: CategoryId<'a>,
+    #[builder(default)]
+    level: Option<LevelId<'a>>,
+    #[builder(default)]
     date: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
-    platform: Option<Cow<'a, str>>,
+    #[builder(default)]
+    region: Option<RegionId<'a>>,
+    #[builder(default)]
+    platform: Option<PlatformId<'a>>,
+    #[builder(default)]
     verified: Option<bool>,
     times: Times,
-    players: Option<Vec<Player>>,
+    #[builder(default)]
+    players: Option<Vec<Player<'a>>>,
+    #[builder(default)]
     emulated: Option<bool>,
+    #[builder(default)]
     video: Option<url::Url>,
+    #[builder(default)]
     comment: Option<String>,
+    #[builder(default)]
     splitsio: Option<SplitsIo>,
-    variables: HashMap<String, VariableType>,
+    #[builder(default)]
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    variables: HashMap<VariableId<'a>, VariableType<'a>>,
 }
 
 #[derive(Default, Debug, Serialize, Clone)]
@@ -148,7 +198,7 @@ pub struct Times {
 #[serde(rename_all = "kebab-case")]
 pub struct UpdateRunStatus<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: RunId<'a>,
     status: NewStatus,
 }
 
@@ -157,15 +207,15 @@ pub struct UpdateRunStatus<'a> {
 #[serde(rename_all = "kebab-case")]
 pub struct UpdateRunPlayers<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
-    players: Vec<Player>,
+    id: RunId<'a>,
+    players: Vec<Player<'a>>,
 }
 
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct DeleteRun<'a> {
-    id: Cow<'a, str>,
+    id: RunId<'a>,
 }
 
 impl<'a> Runs<'a> {

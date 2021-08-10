@@ -1,11 +1,13 @@
 use serde::Deserialize;
 
+use crate::api::users::UserId;
+
 use super::{Link, Names};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct User {
-    pub id: String,
+pub struct User<'a> {
+    pub id: UserId<'a>,
     pub names: Names,
     pub pronouns: Option<String>,
     pub weblink: String,

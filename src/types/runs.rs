@@ -2,26 +2,39 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
+use crate::api::{
+    categories::CategoryId, games::GameId, levels::LevelId, platforms::PlatformId,
+    regions::RegionId, runs::RunId, users::UserId, variables::VariableId,
+};
+
 use super::Link;
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Run {
-    pub id: String,
+pub struct Run<'a> {
+    pub id: RunId<'a>,
     pub weblink: String,
-    pub game: String,
-    pub level: Option<String>,
-    pub category: String,
+    pub game: GameId<'a>,
+    #[serde(default)]
+    pub level: Option<LevelId<'a>>,
+    pub category: CategoryId<'a>,
+    #[serde(default)]
     pub videos: Option<Videos>,
+    #[serde(default)]
     pub comment: Option<String>,
-    pub status: Status,
-    pub players: Vec<Player>,
+    pub status: Status<'a>,
+    pub players: Vec<Player<'a>>,
+    #[serde(default)]
     pub date: Option<String>,
+    #[serde(default)]
     pub submitted: Option<String>,
     pub times: Times,
-    pub system: System,
+    pub system: System<'a>,
+    #[serde(default)]
     pub splits: Option<Link>,
-    pub values: HashMap<String, String>,
+    #[serde(default)]
+    pub values: HashMap<VariableId<'a>, String>,
+    #[serde(default)]
     pub links: Option<Vec<Link>>,
 }
 
@@ -42,14 +55,14 @@ pub struct VideoLink {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "status")]
-pub enum Status {
+pub enum Status<'a> {
     New,
     Verified {
-        examiner: Option<String>,
+        examiner: Option<UserId<'a>>,
         verify_date: Option<String>,
     },
     Rejected {
-        examiner: String,
+        examiner: UserId<'a>,
         reason: String,
     },
 }
@@ -57,8 +70,8 @@ pub enum Status {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "rel")]
-pub enum Player {
-    User { id: String, uri: String },
+pub enum Player<'a> {
+    User { id: UserId<'a>, uri: String },
     Guest { name: String, uri: String },
 }
 
@@ -77,8 +90,8 @@ pub struct Times {
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct System {
-    pub platform: Option<String>,
+pub struct System<'a> {
+    pub platform: Option<PlatformId<'a>>,
     pub emulated: bool,
-    pub region: Option<String>,
+    pub region: Option<RegionId<'a>>,
 }

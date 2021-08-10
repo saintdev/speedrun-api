@@ -1,12 +1,14 @@
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use super::{
-    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds, CategoriesSorting,
-    Direction, Pageable, VariablesSorting,
+    developers::DeveloperId, endpoint::Endpoint, engines::EngineId, error::BodyError,
+    gametypes::GameTypeId, genres::GenreId, leaderboards::LeaderboardEmbeds, platforms::PlatformId,
+    publishers::PublisherId, regions::RegionId, users::UserId, CategoriesSorting, Direction,
+    Pageable, VariablesSorting,
 };
 
 /// Embeds available for games
@@ -76,6 +78,33 @@ pub enum GameDerivedGamesBuilderError {
     Inner(#[from] GamesBuilderError),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct GameId<'a>(Cow<'a, str>);
+
+impl<'a> GameId<'a> {
+    pub fn new<T>(id: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Self(id.into())
+    }
+}
+
+impl<'a, T> From<T> for GameId<'a>
+where
+    T: Into<Cow<'a, str>>,
+{
+    fn from(value: T) -> Self {
+        Self::new(value)
+    }
+}
+
+impl Display for GameId<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.0)
+    }
+}
+
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
@@ -83,14 +112,14 @@ pub struct Games<'a> {
     name: Option<Cow<'a, str>>,
     abbreviation: Option<Cow<'a, str>>,
     released: Option<i64>,
-    gametype: Option<Cow<'a, str>>,
-    platform: Option<Cow<'a, str>>,
-    region: Option<Cow<'a, str>>,
-    genre: Option<Cow<'a, str>>,
-    engine: Option<Cow<'a, str>>,
-    developer: Option<Cow<'a, str>>,
-    publisher: Option<Cow<'a, str>>,
-    moderator: Option<Cow<'a, str>>,
+    gametype: Option<GameTypeId<'a>>,
+    platform: Option<PlatformId<'a>>,
+    region: Option<RegionId<'a>>,
+    genre: Option<GenreId<'a>>,
+    engine: Option<EngineId<'a>>,
+    developer: Option<DeveloperId<'a>>,
+    publisher: Option<PublisherId<'a>>,
+    moderator: Option<UserId<'a>>,
     #[serde(rename = "_bulk")]
     bulk: Option<bool>,
     orderby: Option<GamesSorting>,
@@ -101,65 +130,76 @@ pub struct Games<'a> {
     embed: BTreeSet<GameEmbeds>,
 }
 
-#[derive(Default, Debug, Builder, Clone)]
+#[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Game<'a> {
-    id: Cow<'a, str>,
+    id: GameId<'a>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct GameCategories<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: GameId<'a>,
+    #[builder(default)]
     miscellaneous: Option<bool>,
+    #[builder(default)]
     orderby: Option<CategoriesSorting>,
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct GameLevels<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: GameId<'a>,
+    #[builder(default)]
     orderby: Option<LevelsSorting>,
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct GameVariables<'a> {
     #[serde(skip)]
-    id: Cow<'a, str>,
+    id: GameId<'a>,
+    #[builder(default)]
     orderby: Option<VariablesSorting>,
+    #[builder(default)]
     direction: Option<Direction>,
 }
 
 #[derive(Default, Clone)]
 pub struct GameDerivedGamesBuilder<'a> {
-    id: Option<Cow<'a, str>>,
+    id: Option<GameId<'a>>,
     inner: GamesBuilder<'a>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct GameDerivedGames<'a> {
-    id: Cow<'a, str>,
+    id: GameId<'a>,
     inner: Games<'a>,
 }
 
-#[derive(Default, Debug, Builder, Serialize, Clone)]
-#[builder(default, setter(into, strip_option))]
+#[derive(Debug, Builder, Serialize, Clone)]
+#[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct GameRecords<'a> {
-    id: Cow<'a, str>,
+    id: GameId<'a>,
+    #[builder(default)]
     top: Option<i64>,
+    #[builder(default)]
     scope: Option<LeaderboardScope>,
+    #[builder(default)]
     miscellaneous: Option<bool>,
+    #[builder(default)]
     skip_empty: Option<bool>,
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<LeaderboardEmbeds>,
@@ -213,7 +253,7 @@ impl<'a> GameVariables<'a> {
 impl<'a> GameDerivedGamesBuilder<'a> {
     pub fn id<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<GameId<'a>>,
     {
         self.id = Some(value.into());
         self
@@ -241,56 +281,56 @@ impl<'a> GameDerivedGamesBuilder<'a> {
     }
     pub fn gametype<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<GameTypeId<'a>>,
     {
         self.inner.gametype(value);
         self
     }
     pub fn platform<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<PlatformId<'a>>,
     {
         self.inner.platform(value);
         self
     }
     pub fn region<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<RegionId<'a>>,
     {
         self.inner.region(value);
         self
     }
     pub fn genre<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<GenreId<'a>>,
     {
         self.inner.genre(value);
         self
     }
     pub fn engine<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<EngineId<'a>>,
     {
         self.inner.engine(value);
         self
     }
     pub fn developer<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<DeveloperId<'a>>,
     {
         self.inner.developer(value);
         self
     }
     pub fn publisher<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<PublisherId<'a>>,
     {
         self.inner.publisher(value);
         self
     }
     pub fn moderator<S>(&mut self, value: S) -> &mut Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<UserId<'a>>,
     {
         self.inner.moderator(value);
         self
