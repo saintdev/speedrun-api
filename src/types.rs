@@ -1,20 +1,35 @@
 mod category;
+mod category_impls;
 mod common;
+mod developer_impls;
 mod developers;
+mod engine_impls;
 mod engines;
+mod game_impls;
 mod games;
+mod gametype_impls;
 mod gametypes;
+mod genre_impls;
 mod genres;
 mod guests;
+mod leaderboard_impls;
 mod leaderboards;
 mod levels;
+mod levels_impls;
 mod notifications;
+mod platform_impls;
 mod platforms;
+mod publisher_impls;
 mod publishers;
+mod region_impls;
 mod regions;
+mod run_impls;
 mod runs;
 mod series;
+mod series_impls;
+mod user_impls;
 mod users;
+mod variable_impls;
 mod variables;
 
 // TODO: Deserialize to URI/URL type
