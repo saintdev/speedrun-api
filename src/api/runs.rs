@@ -170,8 +170,9 @@ pub struct CreateRun<'a> {
     #[builder(default)]
     verified: Option<bool>,
     times: Times,
-    #[builder(default)]
-    players: Option<Vec<Player<'a>>>,
+    #[builder(setter(name = "_players"), private, default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    players: Vec<Player<'a>>,
     #[builder(default)]
     emulated: Option<bool>,
     #[builder(default)]
@@ -208,6 +209,7 @@ pub struct UpdateRunStatus<'a> {
 pub struct UpdateRunPlayers<'a> {
     #[serde(skip)]
     id: RunId<'a>,
+    #[builder(setter(name = "_players"), private)]
     players: Vec<Player<'a>>,
 }
 
@@ -251,6 +253,21 @@ impl<'a> CreateRun<'a> {
     }
 }
 
+impl<'a> CreateRunBuilder<'a> {
+    pub fn player(&mut self, player: Player<'a>) -> &mut Self {
+        self.players.get_or_insert_with(Vec::new).push(player);
+        self
+    }
+
+    pub fn players<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = Player<'a>>,
+    {
+        self.players.get_or_insert_with(Vec::new).extend(iter);
+        self
+    }
+}
+
 impl<'a> UpdateRunStatus<'a> {
     pub fn builder() -> UpdateRunStatusBuilder<'a> {
         UpdateRunStatusBuilder::default()
@@ -260,6 +277,21 @@ impl<'a> UpdateRunStatus<'a> {
 impl<'a> UpdateRunPlayers<'a> {
     pub fn builder() -> UpdateRunPlayersBuilder<'a> {
         UpdateRunPlayersBuilder::default()
+    }
+}
+
+impl<'a> UpdateRunPlayersBuilder<'a> {
+    pub fn player(&mut self, player: Player<'a>) -> &mut Self {
+        self.players.get_or_insert_with(Vec::new).push(player);
+        self
+    }
+
+    pub fn players<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: Iterator<Item = Player<'a>>,
+    {
+        self.players.get_or_insert_with(Vec::new).extend(iter);
+        self
     }
 }
 

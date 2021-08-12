@@ -21,5 +21,5 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //      - Tests
 //      - declare_endpoint!() macro?
 //      - Endpoint builder errors
-//      - Handle other collection builders, such as CreateRun.players, in a
-//        similar fashion to embeds
+//      - ID types/type aliases
+//      - Variables
