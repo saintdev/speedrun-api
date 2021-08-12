@@ -23,4 +23,3 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //      - Endpoint builder errors
 //      - Handle other collection builders, such as CreateRun.players, in a
 //        similar fashion to embeds
-//      - Variables

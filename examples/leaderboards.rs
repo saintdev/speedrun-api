@@ -32,6 +32,18 @@ pub async fn main() -> SpeedrunApiResult<()> {
     let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
     println!("{:#?}", leaderboard);
 
+    // This game/category combonation does not exist, however this is the
+    // example used by the API documentation.
+    let endpoint = FullGameLeaderboard::builder()
+        .game("4pdv9k1w")
+        .category("rklx4wkn")
+        .variable("6wl339l1", "45lmxy1v")
+        .variable("32lgg3lp", "45lmdylv")
+        .build()
+        .unwrap();
+    let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
+    println!("{:#?}", leaderboard);
+
     // This game/level/category combonation does not exist, however this is the
     // example used by the API documentation.
     let endpoint = IndividualLevelLeaderboard::builder()

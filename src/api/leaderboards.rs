@@ -1,4 +1,7 @@
-use std::{borrow::Cow, collections::BTreeSet};
+use std::{
+    borrow::Cow,
+    collections::{BTreeSet, HashMap},
+};
 
 use http::Method;
 use serde::Serialize;
@@ -9,8 +12,12 @@ use crate::{
 };
 
 use super::{
-    categories::CategoryId, games::GameId, levels::LevelId, platforms::PlatformId,
+    categories::CategoryId,
+    games::GameId,
+    levels::LevelId,
+    platforms::PlatformId,
     regions::RegionId,
+    variables::{ValueId, VariableId},
 };
 
 /// Embeds available for leaderboards.
@@ -50,8 +57,9 @@ pub struct FullGameLeaderboard<'a> {
     timing: Option<TimingMethod>,
     #[builder(default)]
     date: Option<String>,
-    /*TODO
-     * variables: HashMap<String, String>, */
+    #[builder(setter(name = "_variables"), private, default)]
+    #[serde(skip)]
+    variables: HashMap<VariableId<'a>, ValueId<'a>>,
     #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
@@ -83,8 +91,9 @@ pub struct IndividualLevelLeaderboard<'a> {
     timing: Option<TimingMethod>,
     #[builder(default)]
     date: Option<String>,
-    /*TODO
-     * variables: HashMap<String, String>, */
+    #[builder(setter(name = "_variables"), private, default)]
+    #[serde(skip)]
+    variables: HashMap<VariableId<'a>, ValueId<'a>>,
     #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
@@ -110,6 +119,29 @@ impl<'a> FullGameLeaderboardBuilder<'a> {
         self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
         self
     }
+
+    pub fn variable<Var, Val>(&mut self, variable: Var, value: Val) -> &mut Self
+    where
+        Var: Into<VariableId<'a>>,
+        Val: Into<ValueId<'a>>,
+    {
+        self.variables
+            .get_or_insert_with(HashMap::new)
+            .insert(variable.into(), value.into());
+        self
+    }
+
+    pub fn variables<I, Var, Val>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (Var, Val)>,
+        Var: Into<VariableId<'a>>,
+        Val: Into<ValueId<'a>>,
+    {
+        self.variables
+            .get_or_insert_with(HashMap::new)
+            .extend(iter.into_iter().map(|(k, v)| (k.into(), v.into())));
+        self
+    }
 }
 
 impl<'a> IndividualLevelLeaderboard<'a> {
@@ -129,6 +161,29 @@ impl<'a> IndividualLevelLeaderboardBuilder<'a> {
         I: Iterator<Item = LeaderboardEmbeds>,
     {
         self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
+    }
+
+    pub fn variable<Var, Val>(&mut self, variable: Var, value: Val) -> &mut Self
+    where
+        Var: Into<VariableId<'a>>,
+        Val: Into<ValueId<'a>>,
+    {
+        self.variables
+            .get_or_insert_with(HashMap::new)
+            .insert(variable.into(), value.into());
+        self
+    }
+
+    pub fn variables<I, Var, Val>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = (Var, Val)>,
+        Var: Into<VariableId<'a>>,
+        Val: Into<ValueId<'a>>,
+    {
+        self.variables
+            .get_or_insert_with(HashMap::new)
+            .extend(iter.into_iter().map(|(k, v)| (k.into(), v.into())));
         self
     }
 }
@@ -157,7 +212,19 @@ impl Endpoint for FullGameLeaderboard<'_> {
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+        let mut params = Vec::new();
+        let urlencoded = serde_urlencoded::to_string(self)?;
+        if !urlencoded.is_empty() {
+            params.push(urlencoded);
+        }
+
+        params.extend(
+            self.variables
+                .iter()
+                .map(|(var, val)| format!("var-{}={}", var, val)),
+        );
+
+        Ok(params.join("&").into())
     }
 }
 
@@ -175,7 +242,19 @@ impl Endpoint for IndividualLevelLeaderboard<'_> {
     }
 
     fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+        let mut params = Vec::new();
+        let urlencoded = serde_urlencoded::to_string(self)?;
+        if !urlencoded.is_empty() {
+            params.push(urlencoded);
+        }
+
+        params.extend(
+            self.variables
+                .iter()
+                .map(|(var, val)| format!("var-{}={}", var, val)),
+        );
+
+        Ok(params.join("&").into())
     }
 }
 
