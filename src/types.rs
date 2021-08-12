@@ -11,6 +11,7 @@ mod gametype_impls;
 mod gametypes;
 mod genre_impls;
 mod genres;
+mod guest_impls;
 mod guests;
 mod leaderboard_impls;
 mod leaderboards;
