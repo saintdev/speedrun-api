@@ -130,6 +130,11 @@ impl SpeedrunApiClientAsync {
         };
         Ok(api)
     }
+
+    /// Create a new Speedrun.com API builder.
+    pub fn builder() -> SpeedrunApiBuilder {
+        SpeedrunApiBuilder::new()
+    }
 }
 
 impl api::RestClient for SpeedrunApiClientAsync {
