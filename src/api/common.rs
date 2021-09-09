@@ -2,10 +2,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::Pagination;
 
+/// Sort direction
 #[derive(Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum Direction {
+    /// Sort ascending
     Asc,
+    /// Sort descending
     Desc,
 }
 

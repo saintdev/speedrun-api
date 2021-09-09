@@ -1,3 +1,7 @@
+//! # Genres
+//!
+//! Endpoints available for genres
+
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -13,10 +17,12 @@ pub enum GenresSorting {
     Name,
 }
 
+/// Represents a genre ID.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct GenreId<'a>(Cow<'a, str>);
 
 impl<'a> GenreId<'a> {
+    /// Create a new [`GenreId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -40,27 +46,34 @@ impl Display for GenreId<'_> {
     }
 }
 
+/// Retrieves a list of all genres
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Genres {
+    #[doc = r"Sorting options for results."]
     orderby: Option<GenresSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single genre identified by ID
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Genre<'a> {
+    #[doc = r"`ID` of the genre."]
     id: GenreId<'a>,
 }
 
 impl Genres {
+    /// Create a builder for this endpoint.
     pub fn builder() -> GenresBuilder {
         GenresBuilder::default()
     }
 }
 
 impl<'a> Genre<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> GenreBuilder<'a> {
         GenreBuilder::default()
     }

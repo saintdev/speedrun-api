@@ -1,3 +1,7 @@
+//! # Game types
+//!
+//! Endpoints available for game types
+
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -13,10 +17,12 @@ pub enum GameTypesSorting {
     Name,
 }
 
+/// Represents a game type ID
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct GameTypeId<'a>(Cow<'a, str>);
 
 impl<'a> GameTypeId<'a> {
+    /// Create a new [`GameTypeId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -40,27 +46,34 @@ impl Display for GameTypeId<'_> {
     }
 }
 
+/// Retrieves a list of all game types
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct GameTypes {
+    #[doc = r"Sorting options for results."]
     orderby: Option<GameTypesSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single game type identified by it's ID.
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct GameType<'a> {
+    #[doc = r"`ID` of the game type."]
     id: GameTypeId<'a>,
 }
 
 impl GameTypes {
+    /// Create a builder for this endpoint.
     pub fn builder() -> GameTypesBuilder {
         GameTypesBuilder::default()
     }
 }
 
 impl<'a> GameType<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> GameTypeBuilder<'a> {
         GameTypeBuilder::default()
     }

@@ -14,6 +14,7 @@ use crate::{
 
 const SPEEDRUN_API_BASE_URL: &str = "https://www.speedrun.com/api/v1/";
 
+/// A client for communicating with the Speedrun.com API
 #[derive(Clone, Debug)]
 pub struct SpeedrunApiClient {
     client: HttpClient,
@@ -22,10 +23,12 @@ pub struct SpeedrunApiClient {
 }
 
 impl SpeedrunApiClient {
+    /// Create a new Speedrun.com API client.
     pub fn new() -> SpeedrunApiResult<Self> {
         Self::new_impl::<String>(None)
     }
 
+    /// Create a new Speedrun.com API client, with the provided API key.
     pub fn with_api_key<S>(api_key: S) -> SpeedrunApiResult<Self>
     where
         S: Into<String>,
@@ -49,6 +52,7 @@ impl SpeedrunApiClient {
         })
     }
 
+    /// Create a new Speedrun.com API builder.
     pub fn builder() -> SpeedrunApiBuilder {
         SpeedrunApiBuilder::new()
     }
@@ -95,6 +99,7 @@ impl api::Client for SpeedrunApiClient {
     }
 }
 
+/// An asynchronous client for communicating with the Speedrun.com API
 #[derive(Clone, Debug)]
 pub struct SpeedrunApiClientAsync {
     client: AsyncHttpClient,
@@ -103,10 +108,13 @@ pub struct SpeedrunApiClientAsync {
 }
 
 impl SpeedrunApiClientAsync {
+    /// Create a new asynchronous Speedrun.com API client
     pub fn new() -> SpeedrunApiResult<Self> {
         Self::new_impl::<String>(None)
     }
 
+    /// Create a new asynchronous Speedrun.com API client, with the provided API
+    /// key.
     pub fn with_api_key<S>(api_key: S) -> SpeedrunApiResult<Self>
     where
         S: Into<String>,
@@ -179,16 +187,19 @@ impl api::AsyncClient for SpeedrunApiClientAsync {
     }
 }
 
+/// Speedrun.com API client builder
 #[derive(Debug, Default)]
 pub struct SpeedrunApiBuilder {
     api_key: Option<String>,
 }
 
 impl SpeedrunApiBuilder {
+    /// Create a new Speedrun.com API client builder.
     pub fn new() -> Self {
         SpeedrunApiBuilder::default()
     }
 
+    /// Add an API key
     pub fn api_key<S>(&mut self, value: S) -> &mut Self
     where
         S: Into<String>,
@@ -197,10 +208,12 @@ impl SpeedrunApiBuilder {
         self
     }
 
+    /// Build a synchronous Speedrun.com API client.
     pub fn build(&self) -> SpeedrunApiResult<SpeedrunApiClient> {
         SpeedrunApiClient::new_impl(self.api_key.as_ref())
     }
 
+    /// Build an asynchronous Speedrun.com API client.
     pub fn build_async(&self) -> SpeedrunApiResult<SpeedrunApiClientAsync> {
         SpeedrunApiClientAsync::new_impl(self.api_key.as_ref())
     }

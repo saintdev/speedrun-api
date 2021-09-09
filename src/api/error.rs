@@ -2,6 +2,7 @@ use std::{any, error::Error};
 
 use thiserror::Error;
 
+//TODO: Make these variants instead of structs
 /// Errors that occur when creating form data.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -20,6 +21,7 @@ pub enum BodyError {
     },
 }
 
+//TODO: Make these variants instead of structs
 /// Errors that occur from API endpoints.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -74,6 +76,7 @@ where
         /// The name of the type that could not be deserialized.
         typename: &'static str,
     },
+    /// The endpoint requires an API key to use, but none was provided.
     #[error("Endpoint requires authentication, but no API key was provided")]
     RequiresAuthentication,
 }

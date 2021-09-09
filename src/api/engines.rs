@@ -1,3 +1,7 @@
+//! # Engines
+//!
+//! Endpoints relating to engines.
+
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -13,10 +17,12 @@ pub enum EnginesSorting {
     Name,
 }
 
+/// Represents an engine ID.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct EngineId<'a>(Cow<'a, str>);
 
 impl<'a> EngineId<'a> {
+    /// Create a new [`EngineId`]
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -40,27 +46,34 @@ impl Display for EngineId<'_> {
     }
 }
 
+/// Retrieves a list of engines.
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Engines {
+    #[doc = r"Sorting options for engines"]
     orderby: Option<EnginesSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single engine represented by `ID`.
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Engine<'a> {
+    #[doc = r"`ID` of the engine"]
     id: EngineId<'a>,
 }
 
 impl Engines {
+    /// Create a builder for this endpoint.
     pub fn builder() -> EnginesBuilder {
         EnginesBuilder::default()
     }
 }
 
 impl<'a> Engine<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> EngineBuilder<'a> {
         EngineBuilder::default()
     }

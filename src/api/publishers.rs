@@ -1,3 +1,6 @@
+//! # Publishers
+//!
+//! Endpoints available for publishers.
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -13,10 +16,12 @@ pub enum PublishersSorting {
     Name,
 }
 
+/// Represents a publisher ID.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct PublisherId<'a>(Cow<'a, str>);
 
 impl<'a> PublisherId<'a> {
+    /// Create a new [`PublisherId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -40,27 +45,34 @@ impl Display for PublisherId<'_> {
     }
 }
 
+/// Retrieves a list of all publishers.
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Publishers {
+    #[doc = r"Sorting options for results."]
     orderby: Option<PublishersSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single publisher by id.
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Publisher<'a> {
+    #[doc = r"`ID` for the publisher."]
     id: PublisherId<'a>,
 }
 
 impl Publishers {
+    /// Create a builder for this endpoint.
     pub fn builder() -> PublishersBuilder {
         PublishersBuilder::default()
     }
 }
 
 impl<'a> Publisher<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> PublisherBuilder<'a> {
         PublisherBuilder::default()
     }

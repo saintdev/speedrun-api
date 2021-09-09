@@ -1,3 +1,6 @@
+//! # Regions
+//!
+//! Endpoints available for regions.
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -5,10 +8,12 @@ use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, Direction, Pageable};
 
+/// Represents a region ID.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct RegionId<'a>(Cow<'a, str>);
 
 impl<'a> RegionId<'a> {
+    /// Create a new [`RegionId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -32,26 +37,32 @@ impl Display for RegionId<'_> {
     }
 }
 
+/// Retreives a list of all regions.
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Regions {
+    #[doc = r"Sort direction. Regions are currently only sorted alphanumerically by the region name."]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single region.
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Region<'a> {
+    #[doc = r"`ID` of the region."]
     id: RegionId<'a>,
 }
 
 impl Regions {
+    /// Create a builder for this endpoint.
     pub fn builder() -> RegionsBuilder {
         RegionsBuilder::default()
     }
 }
 
 impl<'a> Region<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> RegionBuilder<'a> {
         RegionBuilder::default()
     }

@@ -1,3 +1,6 @@
+//! # Levels
+//!
+//! Endpoints available for levels.
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
@@ -11,14 +14,18 @@ use super::{
 /// Embeds available for levels.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LevelEmbeds {
+    /// Embed per-level categories applicable to the requested level.
     Categories,
+    /// Embed the variables applicable to the requested level.
     Variables,
 }
 
+/// Represents a level ID.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LevelId<'a>(Cow<'a, str>);
 
 impl<'a> LevelId<'a> {
+    /// Create a new [`LevelId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -42,9 +49,11 @@ impl Display for LevelId<'_> {
     }
 }
 
+/// Retrieve a single level, itentified by its ID.
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Level<'a> {
+    #[doc = r"`ID` of the level."]
     #[serde(skip)]
     id: LevelId<'a>,
     #[builder(setter(name = "_embed"), private, default)]
@@ -53,40 +62,53 @@ pub struct Level<'a> {
     embed: BTreeSet<LevelEmbeds>,
 }
 
+/// Retrieves all categories for the given level.
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelCategories<'a> {
+    #[doc = r"`ID` of the level."]
     #[serde(skip)]
     id: LevelId<'a>,
+    #[doc = r"When give, filters miscellaneous categories."]
     #[builder(default)]
     miscellaneous: Option<bool>,
+    #[doc = r"Sorting options for results."]
     #[builder(default)]
     orderby: Option<CategoriesSorting>,
+    #[doc = r"Sort direction"]
     #[builder(default)]
     direction: Option<Direction>,
 }
 
+/// Retrieves all applicable variables for the given level.
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelVariables<'a> {
+    #[doc = r"`ID` of the level."]
     #[serde(skip)]
     id: LevelId<'a>,
+    #[doc = r"Sorting options for results."]
     #[builder(default)]
     orderby: Option<VariablesSorting>,
+    #[doc = r"Sort direction"]
     #[builder(default)]
     direction: Option<Direction>,
 }
 
+/// Retrieves the leaderboards of the given level for all available categories.
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct LevelRecords<'a> {
+    #[doc = r"`ID` of the level."]
     #[serde(skip)]
     id: LevelId<'a>,
+    #[doc = r"Return `top` number of places (default: 3)."]
     #[builder(default)]
     top: Option<i64>,
+    #[doc = r"Do not return empty leaderboards when `true`."]
     #[builder(default)]
     skip_empty: Option<bool>,
     #[builder(setter(name = "_embed"), private, default)]
@@ -96,17 +118,20 @@ pub struct LevelRecords<'a> {
 }
 
 impl<'a> Level<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> LevelBuilder<'a> {
         LevelBuilder::default()
     }
 }
 
 impl<'a> LevelBuilder<'a> {
+    /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: LevelEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
         self
     }
 
+    /// Add multiple embedded resources to this result
     pub fn embeds<I>(&mut self, iter: I) -> &mut Self
     where
         I: Iterator<Item = LevelEmbeds>,
@@ -117,29 +142,34 @@ impl<'a> LevelBuilder<'a> {
 }
 
 impl<'a> LevelCategories<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> LevelCategoriesBuilder<'a> {
         LevelCategoriesBuilder::default()
     }
 }
 
 impl<'a> LevelVariables<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> LevelVariablesBuilder<'a> {
         LevelVariablesBuilder::default()
     }
 }
 
 impl<'a> LevelRecords<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> LevelRecordsBuilder<'a> {
         LevelRecordsBuilder::default()
     }
 }
 
 impl<'a> LevelRecordsBuilder<'a> {
+    /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
         self
     }
 
+    /// Add multiple embedded resources to this result
     pub fn embeds<I>(&mut self, iter: I) -> &mut Self
     where
         I: Iterator<Item = LeaderboardEmbeds>,

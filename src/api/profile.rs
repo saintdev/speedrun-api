@@ -1,12 +1,17 @@
+//! # Profile
+//!
+//! Endpoints available for the current user's profile.
 use http::Method;
 
 use super::endpoint::Endpoint;
 
+/// Retrieves the user resourcce for the currently authenticated user.
 #[derive(Default, Debug, Builder, Clone)]
 #[builder(default, setter(into, strip_option))]
 pub struct Profile {}
 
 impl Profile {
+    /// Create a builder for this endpoint.
     pub fn builder() -> ProfileBuilder {
         ProfileBuilder::default()
     }

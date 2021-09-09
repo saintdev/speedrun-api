@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 mod category;
 mod category_impls;
 mod common;

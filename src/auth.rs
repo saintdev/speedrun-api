@@ -3,14 +3,13 @@ use std::fmt::Debug;
 use http::{HeaderMap, HeaderValue};
 use thiserror::Error;
 
+/// Authentication error
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum AuthError {
-    #[error("Invalid header value: {}", source)]
-    HeaderValue {
-        #[from]
-        source: http::header::InvalidHeaderValue,
-    },
+    /// Invalid header value
+    #[error("Invalid header value: {0}")]
+    HeaderValue(#[from] http::header::InvalidHeaderValue),
 }
 
 #[derive(Clone)]

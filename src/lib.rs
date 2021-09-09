@@ -1,8 +1,16 @@
-#![warn(future_incompatible, rust_2018_compatibility, rust_2018_idioms, unused)]
+#![warn(
+    future_incompatible,
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    unused,
+    missing_docs
+)]
 #![warn(clippy::all)]
 #![allow(broken_intra_doc_links)]
-// TODO: Documentation
-//#![warn(missing_docs)]
+
+//! This crate implements a wrapper for the Speedrun.com REST API.
+//!
+//! Endpoints are available in the [api](src/api.rs) module.
 
 #[macro_use]
 extern crate derive_builder;

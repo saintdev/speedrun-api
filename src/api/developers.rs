@@ -1,3 +1,7 @@
+//! # Developers
+//!
+//! Endpoints available for developers
+
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -13,10 +17,12 @@ pub enum DevelopersSorting {
     Name,
 }
 
+/// Represents a developer ID.
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct DeveloperId<'a>(Cow<'a, str>);
 
 impl<'a> DeveloperId<'a> {
+    /// Create a new [`DeveloperId`]
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -40,27 +46,34 @@ impl Display for DeveloperId<'_> {
     }
 }
 
+/// Retrieves a list of developers
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Developers {
+    #[doc = r"Sorting options for results."]
     orderby: Option<DevelopersSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single developer identified by ID
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Developer<'a> {
+    #[doc = r"`ID` of the developer to retrieve"]
     id: DeveloperId<'a>,
 }
 
 impl Developers {
+    /// Create a builder for this endpoint.
     pub fn builder() -> DevelopersBuilder {
         DevelopersBuilder::default()
     }
 }
 
 impl<'a> Developer<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> DeveloperBuilder<'a> {
         DeveloperBuilder::default()
     }

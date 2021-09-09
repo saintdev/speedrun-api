@@ -1,3 +1,7 @@
+//! # Categories
+//!
+//! Endpoints available for categories
+
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
 use http::Method;
@@ -13,7 +17,9 @@ use super::{
 /// NOTE: Embeds can be nested. That is not handled by this API.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CategoryEmbeds {
+    /// Embed the `game` resource this category belongs to.
     Game,
+    /// Embed `variables` applicable to this category
     Variables,
 }
 
@@ -22,6 +28,7 @@ pub enum CategoryEmbeds {
 pub struct CategoryId<'a>(Cow<'a, str>);
 
 impl<'a> CategoryId<'a> {
+    /// Create a new [`CategoryId`]
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -50,7 +57,7 @@ impl Display for CategoryId<'_> {
 #[builder(setter(into, strip_option))]
 pub struct Category<'a> {
     #[serde(skip)]
-    #[doc = r"`id` of this category."]
+    #[doc = r"`ID` of this category."]
     id: CategoryId<'a>,
     #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
@@ -65,9 +72,9 @@ pub struct Category<'a> {
 #[serde(rename_all = "kebab-case")]
 pub struct CategoryVariables<'a> {
     #[serde(skip)]
-    #[doc = r"`id` of the category to retrieve variables for."]
+    #[doc = r"`ID` of the category to retrieve variables for."]
     id: CategoryId<'a>,
-    #[doc = r"Sorting for results"]
+    #[doc = r"Sorting options for results."]
     #[builder(default)]
     orderby: Option<VariablesSorting>,
     #[doc = r"Sort direction"]
@@ -81,12 +88,12 @@ pub struct CategoryVariables<'a> {
 #[serde(rename_all = "kebab-case")]
 pub struct CategoryRecords<'a> {
     #[serde(skip)]
-    #[doc = r"`id` for the category."]
+    #[doc = r"`ID` for the category."]
     id: CategoryId<'a>,
     #[doc = r"Return `top` number of places (default: 3)."]
     #[builder(default)]
     top: Option<u32>,
-    #[doc = r"Do not return empty leaderboards when true"]
+    #[doc = r"Do not return empty leaderboards when `true`."]
     #[builder(default)]
     skip_empty: Option<bool>,
     #[builder(setter(name = "_embed"), private, default)]
@@ -96,7 +103,7 @@ pub struct CategoryRecords<'a> {
 }
 
 impl<'a> Category<'a> {
-    /// Create a builder for this endpoint
+    /// Create a builder for this endpoint.
     pub fn builder() -> CategoryBuilder<'a> {
         CategoryBuilder::default()
     }

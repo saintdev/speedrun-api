@@ -1,3 +1,6 @@
+//! # Platforms
+//!
+//! Endpoints available for platforms.
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -15,10 +18,12 @@ pub enum PlatformsSorting {
     Released,
 }
 
+/// Represents a platform ID.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct PlatformId<'a>(Cow<'a, str>);
 
 impl<'a> PlatformId<'a> {
+    /// Create a new [`PlatformId`].
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -42,28 +47,35 @@ impl Display for PlatformId<'_> {
     }
 }
 
+/// Retrieves a list of all platforms.
 #[derive(Default, Debug, Builder, Serialize, Clone)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Platforms {
+    #[doc = r"Sorting options for results."]
     orderby: Option<PlatformsSorting>,
+    #[doc = r"Sort direction"]
     direction: Option<Direction>,
 }
 
+/// Retrieves a single platform by ID.
 #[derive(Debug, Builder, Serialize, Clone)]
 #[builder(setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Platform<'a> {
+    #[doc = r"`ID` of the platform to retrieve."]
     id: PlatformId<'a>,
 }
 
 impl Platforms {
+    /// Create a builder for this endpoint.
     pub fn builder() -> PlatformsBuilder {
         PlatformsBuilder::default()
     }
 }
 
 impl<'a> Platform<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> PlatformBuilder<'a> {
         PlatformBuilder::default()
     }

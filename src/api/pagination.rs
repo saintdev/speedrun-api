@@ -17,9 +17,9 @@ use super::{
 /// Marker trait to indicate that an endpoint is pageable.
 pub trait Pageable {}
 
-/// Adapters for paginated endpoints
+/// Adapters specific to [`Pageable`] endpoints.
 pub trait PagedEndpointExt<'a, E> {
-    /// Create an iterator over the results of the paginated endpoint.
+    /// Create an Iterator over the results of the paginated endpoint.
     fn iter<T, C>(&'a self, client: &'a C) -> PagedIter<'a, E, C, T>
     where
         C: Client,
@@ -28,7 +28,7 @@ pub trait PagedEndpointExt<'a, E> {
     /// Retrieves a single page of results for the paginated endpoint.
     fn single_page(&'a self) -> SinglePageBuilder<'a, E>;
 
-    /// Create an async stream over the results of the paginated endpoint.
+    /// Create an async Stream over the results of the paginated endpoint.
     fn stream<T, C>(&'a self, client: &'a C) -> BoxStream<'a, Result<T, ApiError<C::Error>>>
     where
         T: DeserializeOwned + Send + 'static,
@@ -36,7 +36,9 @@ pub trait PagedEndpointExt<'a, E> {
         E: Sync + Send;
 }
 
-/// Iterator type for the `iter` method.
+/// Iterator type for the [`iter`] method on [`PagedEndpointExt`].
+///
+/// [`iter`]: PagedEndpointExt::iter
 pub struct PagedIter<'a, E, C, T> {
     client: &'a C,
     state: SinglePage<'a, E>,
@@ -44,7 +46,7 @@ pub struct PagedIter<'a, E, C, T> {
     current_page: Vec<T>,
 }
 
-/// Builder for the `SinglePage` endpoint
+/// Builder for the [`SinglePage`] endpoint
 #[derive(Debug)]
 pub struct SinglePageBuilder<'a, E> {
     inner: &'a E,
@@ -79,6 +81,7 @@ impl<'a, E> SinglePageBuilder<'a, E>
 where
     E: Pageable + Endpoint,
 {
+    /// Create a new [`SinglePageBuilder`].
     pub fn new(paged: &'a E) -> Self {
         Self {
             inner: paged,
@@ -86,6 +89,7 @@ where
             max: None,
         }
     }
+
     /// Request set of elements beginning at `offset`
     pub fn offset<T>(mut self, value: T) -> Self
     where
@@ -105,7 +109,7 @@ where
         self
     }
 
-    /// Returns a `SinglePage` that can be querired for a set of elements.
+    /// Returns a [`SinglePage`] that can be querired for a set of elements.
     pub fn build(self) -> SinglePage<'a, E>
     where
         E: Pageable,
@@ -122,7 +126,7 @@ impl<'a, E> SinglePage<'a, E>
 where
     E: Endpoint + Pageable,
 {
-    /// Create a builder for a `SinglePage`
+    /// Create a builder for a [`SinglePage`]
     pub fn builder(paged: &'a E) -> SinglePageBuilder<'a, E> {
         SinglePageBuilder::new(paged)
     }

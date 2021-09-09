@@ -1,3 +1,6 @@
+//! # Notifications
+//!
+//! Endpoints available for notifications.
 use http::Method;
 use serde::Serialize;
 
@@ -10,15 +13,19 @@ pub enum NotificationsSorting {
     Created,
 }
 
+/// Retrieves the notifications for the currently authenticated user.
 #[derive(Default, Debug, Builder, Clone, Serialize)]
 #[builder(default, setter(into, strip_option))]
 #[serde(rename_all = "kebab-case")]
 pub struct Notifications {
+    #[doc = r"Sorting options for results (default: Sorted by date)."]
     orderby: Option<NotificationsSorting>,
+    #[doc = r"Sort direction. (default: descending)"]
     direction: Option<Direction>,
 }
 
 impl Notifications {
+    /// Create a builder for this endpoint.
     pub fn builder() -> NotificationsBuilder {
         NotificationsBuilder::default()
     }

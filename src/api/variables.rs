@@ -1,3 +1,6 @@
+//! # Variables
+//!
+//! Endpoints available for variables
 use std::{borrow::Cow, fmt::Display};
 
 use http::Method;
@@ -5,10 +8,12 @@ use serde::{Deserialize, Serialize};
 
 use super::endpoint::Endpoint;
 
+/// Represents a variable ID
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct VariableId<'a>(Cow<'a, str>);
 
 impl<'a> VariableId<'a> {
+    /// Create a new [`VariableId`]
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -32,10 +37,12 @@ impl Display for VariableId<'_> {
     }
 }
 
+/// Represents a value ID
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct ValueId<'a>(Cow<'a, str>);
 
 impl<'a> ValueId<'a> {
+    /// Create a new [`ValueId`]
     pub fn new<T>(id: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -59,13 +66,16 @@ impl Display for ValueId<'_> {
     }
 }
 
+/// Retrieves a single variable
 #[derive(Debug, Builder, Clone)]
 #[builder(setter(into, strip_option))]
 pub struct Variable<'a> {
+    #[doc = r"Variable ID"]
     id: VariableId<'a>,
 }
 
 impl<'a> Variable<'a> {
+    /// Create a builder for this endpoint.
     pub fn builder() -> VariableBuilder<'a> {
         VariableBuilder::default()
     }
