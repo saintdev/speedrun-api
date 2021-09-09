@@ -2,26 +2,17 @@ use std::{any, error::Error};
 
 use thiserror::Error;
 
-//TODO: Make these variants instead of structs
 /// Errors that occur when creating form data.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum BodyError {
     /// Error serializing body data from form paramaters
-    #[error("URL encode error: {}", source)]
-    UrlEncoded {
-        /// The source of the error
-        #[from]
-        source: serde_urlencoded::ser::Error,
-    },
-    #[error("JSON encode error: {}", source)]
-    Json {
-        #[from]
-        source: serde_json::Error,
-    },
+    #[error("URL encode error: {0}")]
+    UrlEncoded(#[from] serde_urlencoded::ser::Error),
+    #[error("JSON encode error: {0}")]
+    Json(#[from] serde_json::Error),
 }
 
-//TODO: Make these variants instead of structs
 /// Errors that occur from API endpoints.
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -30,44 +21,23 @@ where
     E: Error + Send + Sync + 'static,
 {
     /// Error creating body data
-    #[error("failed to create form data: {}", source)]
-    Body {
-        /// The source of the error
-        #[from]
-        source: BodyError,
-    },
+    #[error("failed to create form data: {0}")]
+    Body(#[from] BodyError),
     /// The client encountered an error.
-    #[error("client error: {}", source)]
-    Client {
-        /// Client error
-        source: E,
-    },
+    #[error("client error: {0}")]
+    Client(E),
     /// JSON deserialization failed
-    #[error("failed to parse JSON: {}", source)]
-    Json {
-        /// The source of the error
-        #[from]
-        source: serde_json::Error,
-    },
+    #[error("failed to parse JSON: {0}")]
+    Json(#[from] serde_json::Error),
     /// The URL failed to parse.
-    #[error("url parse error: {}", source)]
-    Parse {
-        /// The source of the error
-        #[from]
-        source: url::ParseError,
-    },
+    #[error("url parse error: {0}")]
+    Parse(#[from] url::ParseError),
     /// Speedrun.com returned an error
-    #[error("Speedrun.com server error: {}", msg)]
-    SpeedrunApi {
-        /// The error message from speedrun.com
-        msg: String,
-    },
+    #[error("Speedrun.com server error: {0}")]
+    SpeedrunApi(String),
     /// Speedrun.com returned an unknown error
-    #[error("Unknown speedrun.com server error: {:?}", obj)]
-    Unknown {
-        /// The JSON object returned from speedrun.com
-        obj: serde_json::Value,
-    },
+    #[error("Unknown speedrun.com server error: {0:?}")]
+    Unknown(serde_json::Value),
     /// Failed parsing data type from JSON
     #[error("Parsing type {} from JSON: {}", typename, source)]
     DataType {
@@ -87,19 +57,19 @@ where
 {
     /// Create an API error from a client error
     pub fn client(source: E) -> Self {
-        Self::Client { source }
+        Self::Client(source)
     }
 
     pub(crate) fn from_speedrun_api(val: serde_json::Value) -> Self {
         // let val = val.pointer("/message");
         if let Some(val) = val.pointer("/message") {
             if let Some(msg) = val.as_str() {
-                Self::SpeedrunApi { msg: msg.into() }
+                Self::SpeedrunApi(msg.into())
             } else {
-                Self::Unknown { obj: val.clone() }
+                Self::Unknown(val.clone())
             }
         } else {
-            Self::Unknown { obj: val.clone() }
+            Self::Unknown(val.clone())
         }
     }
 

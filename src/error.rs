@@ -6,46 +6,29 @@ use crate::{api, AuthError};
 /// An alias for result types returned by this crate.
 pub type SpeedrunApiResult<T> = Result<T, SpeedrunApiError>;
 
-//TODO: Make these variants instead of structs
 /// Errors from the speedrun.com api client.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum SpeedrunApiError {
     /// Error from the speedrun.com API
-    #[error("API error: {source}")]
-    Api {
-        #[from]
-        source: api::ApiError<RestError>,
-    },
+    #[error("API error: {0}")]
+    Api(#[from] api::ApiError<RestError>),
     /// Error parsing URL
-    #[error("url parse error: {source}")]
-    Parse {
-        #[from]
-        source: url::ParseError,
-    },
+    #[error("url parse error: {0}")]
+    Parse(#[from] url::ParseError),
 }
 
-//TODO: Make these variants instead of structs
 /// Error communicating with the REST endpoint.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RestError {
     /// Reqwest client error
-    #[error("communication: {source}")]
-    Communication {
-        #[from]
-        source: reqwest::Error,
-    },
+    #[error("communication: {0}")]
+    Communication(#[from] reqwest::Error),
     /// HTTP protocol error
-    #[error("HTTP error: {source}")]
-    Http {
-        #[from]
-        source: http::Error,
-    },
+    #[error("HTTP error: {0}")]
+    Http(#[from] http::Error),
     /// Authentication error
-    #[error("Authentication error: {source}")]
-    Authentication {
-        #[from]
-        source: AuthError,
-    },
+    #[error("Authentication error: {0}")]
+    Authentication(#[from] AuthError),
 }
