@@ -217,7 +217,7 @@ pub struct Run<'a> {
 ///
 /// This endpoint requires a valid API key.
 #[derive(Debug, Builder, Serialize, Clone)]
-#[builder(setter(into, strip_option))]
+#[builder(setter(into, strip_option), build_fn(validate = "Self::validate"))]
 #[serde(rename_all = "kebab-case")]
 pub struct CreateRun<'a> {
     #[doc = r"Category ID for the run."]
@@ -237,8 +237,7 @@ pub struct CreateRun<'a> {
     #[doc = r"If the run has been verified by a moderator. Can only be set if the submitting user is a moderator of the game."]
     #[builder(default)]
     verified: Option<bool>,
-    // TODO: Convert this to a private method?
-    #[doc = r"Timing information for the run. At least one time must be set."]
+    #[builder(setter(name = "_times"), private, default)]
     times: Times,
     #[builder(setter(name = "_players"), private, default)]
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -260,15 +259,11 @@ pub struct CreateRun<'a> {
     variables: HashMap<VariableId<'a>, ValueType<'a>>,
 }
 
-/// Timing information for a new run.
 #[derive(Default, Debug, Serialize, Clone)]
 #[serde(rename_all = "snake_case")]
-pub struct Times {
-    /// Real-world time of the run.
+struct Times {
     realtime: Option<f64>,
-    /// Real-world time of the run, excluding the loading times.
     realtime_noloads: Option<f64>,
-    /// Time measuered by the game.
     ingame: Option<f64>,
 }
 
@@ -360,6 +355,26 @@ impl<'a> CreateRun<'a> {
 }
 
 impl<'a> CreateRunBuilder<'a> {
+    /// Real-world time of the run
+    pub fn realtime<T: Into<f64>>(&mut self, value: T) -> &mut Self {
+        self.times.get_or_insert_with(Times::default).realtime = Some(value.into());
+        self
+    }
+
+    /// Real-world time of the run, excluding the loading times
+    pub fn realtime_noloads<T: Into<f64>>(&mut self, value: T) -> &mut Self {
+        self.times
+            .get_or_insert_with(Times::default)
+            .realtime_noloads = Some(value.into());
+        self
+    }
+
+    /// Time measured by the game
+    pub fn ingame<T: Into<f64>>(&mut self, value: T) -> &mut Self {
+        self.times.get_or_insert_with(Times::default).ingame = Some(value.into());
+        self
+    }
+
     /// Add a player to this run.
     pub fn player(&mut self, player: Player<'a>) -> &mut Self {
         self.players.get_or_insert_with(Vec::new).push(player);
@@ -373,6 +388,20 @@ impl<'a> CreateRunBuilder<'a> {
     {
         self.players.get_or_insert_with(Vec::new).extend(iter);
         self
+    }
+
+    fn validate(&self) -> Result<(), String> {
+        if let Some(times) = &self.times {
+            if times.realtime.is_none()
+                && times.realtime_noloads.is_none()
+                && times.ingame.is_none()
+            {
+                return Err("At least one time must be set. Set one of `realtime`, \
+                            `realtime_noloads`, or `ingame`."
+                    .into());
+            }
+        }
+        Ok(())
     }
 }
 
