@@ -4,7 +4,7 @@
 //!
 //! # Example
 //!
-//! ```rust ,norun
+//! ```rust ,no_run
 //! use futures::{StreamExt, TryStreamExt};
 //! use serde::Deserialize;
 //! use speedrun_api::{
