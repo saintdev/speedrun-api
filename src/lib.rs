@@ -29,5 +29,3 @@ pub use client::{SpeedrunApiBuilder, SpeedrunApiClient, SpeedrunApiClientAsync};
 //      - Tests
 //      - declare_endpoint!() macro?
 //      - Endpoint builder errors
-//      - ID types/type aliases
-//      - Variables
