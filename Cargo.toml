@@ -3,6 +3,7 @@ name = "speedrun-api"
 version = "0.1.0"
 authors = ["Nathan Caldwell <saintdev@gmail.com>"]
 edition = "2018"
+description = "A wrapper for the speedrun.com REST API"
 license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
