@@ -5,6 +5,7 @@ authors = ["Nathan Caldwell <saintdev@gmail.com>"]
 edition = "2018"
 description = "A wrapper for the speedrun.com REST API"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/saintdev/speedrun-api"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
