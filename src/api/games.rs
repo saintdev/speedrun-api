@@ -7,6 +7,7 @@ use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 use http::Method;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use crate::api::categories::CategoryEmbeds;
 
 use super::{
     developers::DeveloperId, endpoint::Endpoint, engines::EngineId, error::BodyError,
@@ -194,7 +195,30 @@ pub struct GameCategories<'a> {
     #[doc = r"Sort direction."]
     #[builder(default)]
     direction: Option<Direction>,
+
+    #[builder(setter(name = "_embed"), private)]
+    #[serde(serialize_with = "super::utils::serialize_as_csv")]
+    #[serde(skip_serializing_if = "BTreeSet::is_empty")]
+    embed: BTreeSet<CategoryEmbeds>,
 }
+
+impl<'a> GameCategoriesBuilder<'a> {
+    /// Add an embedded resource to this result
+    pub fn embed(&mut self, embed: CategoryEmbeds) -> &mut Self {
+        self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
+        self
+    }
+
+    /// Add multiple embedded resources to this result
+    pub fn embeds<I>(&mut self, iter: I) -> &mut Self
+        where
+            I: Iterator<Item = CategoryEmbeds>,
+    {
+        self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
+        self
+    }
+}
+
 
 /// Retrieves all levels for the given game.
 #[derive(Debug, Builder, Serialize, Clone)]

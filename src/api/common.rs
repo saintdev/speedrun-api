@@ -40,9 +40,9 @@ pub enum CategoriesSorting {
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub(crate) struct Root<T> {
-    pub(crate) data: T,
-    pub(crate) pagination: Option<Pagination>,
+pub struct Root<T> {
+    pub data: T,
+    pub pagination: Option<Pagination>,
 }
 
 impl Default for VariablesSorting {
