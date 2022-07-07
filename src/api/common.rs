@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
-
-use crate::types::Pagination;
+use serde::Serialize;
 
 /// Sort direction
 #[derive(Debug, Serialize, Clone, Copy)]
