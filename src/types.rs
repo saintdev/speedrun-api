@@ -39,7 +39,7 @@ mod variables;
 // TODO: Deserialize dates to chrono types
 
 pub use category::{Category, CategoryType, Players};
-pub use common::{Asset, Assets, Link, ModeratorRole, Names, Pagination, TimingMethod};
+pub use common::{Asset, Assets, Link, ModeratorRole, Names, Pagination, TimingMethod, Root};
 pub use developers::Developer;
 pub use engines::Engine;
 pub use games::{Game, Ruleset};

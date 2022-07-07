@@ -4,12 +4,12 @@ use async_trait::async_trait;
 use http::{header, Method, Request};
 use log::debug;
 use serde::de::DeserializeOwned;
+use crate::types::Root;
 
 use super::{
-    common::Root,
-    error::BodyError,
-    query::{self, AsyncQuery, Query},
-    ApiError, AsyncClient, Client,
+    ApiError,
+    AsyncClient,
+    Client, error::BodyError, query::{self, AsyncQuery, Query},
 };
 
 pub trait Endpoint {

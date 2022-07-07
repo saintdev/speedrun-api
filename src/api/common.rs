@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
-
-use crate::types::Pagination;
+use serde::Serialize;
 
 /// Sort direction
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -36,13 +34,6 @@ pub enum CategoriesSorting {
     Miscellaneous,
     /// Use sort order defined by game moderator (default)
     Pos,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub(crate) struct Root<T> {
-    pub(crate) data: T,
-    pub(crate) pagination: Option<Pagination>,
 }
 
 impl Default for VariablesSorting {
