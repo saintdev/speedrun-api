@@ -7,9 +7,10 @@ use serde::Serialize;
 use super::{endpoint::Endpoint, Direction};
 
 /// Sorting options for notifications
-#[derive(Debug, Clone, Serialize, Copy)]
+#[derive(Default, Debug, Clone, Serialize, Copy)]
 pub enum NotificationsSorting {
     /// Sort by the date the notification was created (default)
+    #[default]
     Created,
 }
 
@@ -28,12 +29,6 @@ impl Notifications {
     /// Create a builder for this endpoint.
     pub fn builder() -> NotificationsBuilder {
         NotificationsBuilder::default()
-    }
-}
-
-impl Default for NotificationsSorting {
-    fn default() -> Self {
-        Self::Created
     }
 }
 

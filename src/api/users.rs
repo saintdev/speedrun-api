@@ -9,10 +9,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, games::GameId, runs::RunEmbeds, Direction, Pageable};
 
 /// Sorting options for users
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum UsersSorting {
     /// Sorts alphanumerically by the international name (default)
+    #[default]
     #[serde(rename = "name.int")]
     NameInternational,
     /// Sorts alphanumerically by the Japanese name
@@ -142,12 +143,6 @@ impl<'a> UserPersonalBestsBuilder<'a> {
     {
         self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
         self
-    }
-}
-
-impl Default for UsersSorting {
-    fn default() -> Self {
-        Self::NameInternational
     }
 }
 

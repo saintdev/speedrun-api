@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for game type
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum GameTypesSorting {
     /// Sort alphanumerically by game type name (default)
+    #[default]
     Name,
 }
 
@@ -76,12 +77,6 @@ impl<'a> GameType<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> GameTypeBuilder<'a> {
         GameTypeBuilder::default()
-    }
-}
-
-impl Default for GameTypesSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

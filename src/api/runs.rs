@@ -56,10 +56,11 @@ pub enum RunStatus {
 }
 
 /// Sorting options for runs
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum RunsSorting {
     /// Sorts by the game the run was done in (default)
+    #[default]
     Game,
     /// Sorts by the run category
     Category,
@@ -453,12 +454,6 @@ impl RunEmbeds {
             RunEmbeds::Region => "region",
             RunEmbeds::Platform => "platform",
         }
-    }
-}
-
-impl Default for RunsSorting {
-    fn default() -> Self {
-        Self::Game
     }
 }
 

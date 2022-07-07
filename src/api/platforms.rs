@@ -9,10 +9,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for platforms
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum PlatformsSorting {
     /// Sorts alphanumerically by the platform name (default)
+    #[default]
     Name,
     /// Sorts by the year the platform was released
     Released,
@@ -78,12 +79,6 @@ impl<'a> Platform<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> PlatformBuilder<'a> {
         PlatformBuilder::default()
-    }
-}
-
-impl Default for PlatformsSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

@@ -68,12 +68,13 @@ pub enum GamesSorting {
 
 // Does this belong here?
 /// Sorting options for levels
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum LevelsSorting {
     /// Sorts alphanumerically by the level name
     Name,
     /// Sorts by the order defined by the game moderator (default)
+    #[default]
     Pos,
 }
 
@@ -544,12 +545,6 @@ impl GameEmbeds {
             GameEmbeds::Publishers => "publishers",
             GameEmbeds::Variables => "variables",
         }
-    }
-}
-
-impl Default for LevelsSorting {
-    fn default() -> Self {
-        Self::Pos
     }
 }
 

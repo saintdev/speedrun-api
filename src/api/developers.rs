@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for developers
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum DevelopersSorting {
     /// Sort alphanumerically by developer name (default)
+    #[default]
     Name,
 }
 
@@ -76,12 +77,6 @@ impl<'a> Developer<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> DeveloperBuilder<'a> {
         DeveloperBuilder::default()
-    }
-}
-
-impl Default for DevelopersSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

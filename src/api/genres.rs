@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for genre
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum GenresSorting {
     /// Sort alphanumerically by genre name (default)
+    #[default]
     Name,
 }
 
@@ -76,12 +77,6 @@ impl<'a> Genre<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> GenreBuilder<'a> {
         GenreBuilder::default()
-    }
-}
-
-impl Default for GenresSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

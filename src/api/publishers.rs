@@ -9,10 +9,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for publisher
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum PublishersSorting {
     /// Sort alphanumerically by publisher name (default)
+    #[default]
     Name,
 }
 
@@ -75,12 +76,6 @@ impl<'a> Publisher<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> PublisherBuilder<'a> {
         PublisherBuilder::default()
-    }
-}
-
-impl Default for PublishersSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

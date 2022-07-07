@@ -11,7 +11,7 @@ pub enum Direction {
 }
 
 /// Sorting options for variables
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum VariablesSorting {
     /// Sorts alphanumerically by the variable name
@@ -21,11 +21,12 @@ pub enum VariablesSorting {
     /// Sorts by `user-defined` flag
     UserDefined,
     /// Sorts by the order defined by the game moderator (default)
+    #[default]
     Pos,
 }
 
 /// Sorting options for categories
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum CategoriesSorting {
     /// Sort alphanumerically by category name
@@ -33,17 +34,6 @@ pub enum CategoriesSorting {
     /// Sort by `miscellaneous` flag
     Miscellaneous,
     /// Use sort order defined by game moderator (default)
+    #[default]
     Pos,
-}
-
-impl Default for VariablesSorting {
-    fn default() -> Self {
-        Self::Pos
-    }
-}
-
-impl Default for CategoriesSorting {
-    fn default() -> Self {
-        Self::Pos
-    }
 }

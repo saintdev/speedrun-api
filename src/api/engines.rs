@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Sorting options for engines
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum EnginesSorting {
     /// Sort alphanumerically by engine name (default)
+    #[default]
     Name,
 }
 
@@ -76,12 +77,6 @@ impl<'a> Engine<'a> {
     /// Create a builder for this endpoint.
     pub fn builder() -> EngineBuilder<'a> {
         EngineBuilder::default()
-    }
-}
-
-impl Default for EnginesSorting {
-    fn default() -> Self {
-        Self::Name
     }
 }
 

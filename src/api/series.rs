@@ -29,10 +29,11 @@ pub enum SeriesEmbeds {
 }
 
 /// Sorting options for game series
-#[derive(Debug, Serialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Clone, Copy)]
 #[serde(rename_all = "kebab-case")]
 pub enum SeriesSorting {
     /// Sorts alphanumerically by the international name (default)
+    #[default]
     #[serde(rename = "name.int")]
     NameInternational,
     /// Sorts alphanumerically by the Japanese name
@@ -314,12 +315,6 @@ impl SeriesEmbeds {
         match self {
             SeriesEmbeds::Moderators => "moderators",
         }
-    }
-}
-
-impl Default for SeriesSorting {
-    fn default() -> Self {
-        Self::NameInternational
     }
 }
 
