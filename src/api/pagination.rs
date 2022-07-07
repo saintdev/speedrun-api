@@ -2,14 +2,14 @@ use async_trait::async_trait;
 use futures::{stream::BoxStream, StreamExt, TryStreamExt};
 use http::{header, Request};
 use serde::de::DeserializeOwned;
+use crate::types::Root;
 
 use crate::types::Pagination;
 
 use super::{
-    common::Root,
-    endpoint::Endpoint,
-    query::{self, AsyncQuery, Query},
-    ApiError, AsyncClient, Client, RestClient,
+    ApiError,
+    AsyncClient,
+    Client, endpoint::Endpoint, query::{self, AsyncQuery, Query}, RestClient,
 };
 
 // TODO: Use provided "next" link for pagination

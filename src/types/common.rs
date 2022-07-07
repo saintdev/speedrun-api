@@ -63,3 +63,10 @@ pub struct Names {
     pub japanese: Option<String>,
     pub twitch: Option<String>,
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct Root<T> {
+    pub data: T,
+    pub pagination: Option<Pagination>,
+}

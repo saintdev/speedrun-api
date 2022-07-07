@@ -38,13 +38,6 @@ pub enum CategoriesSorting {
     Pos,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct Root<T> {
-    pub data: T,
-    pub pagination: Option<Pagination>,
-}
-
 impl Default for VariablesSorting {
     fn default() -> Self {
         Self::Pos
