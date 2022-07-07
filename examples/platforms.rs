@@ -17,7 +17,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
     let client = SpeedrunApiBuilder::default().build_async()?;
 
     let endpoint = Platforms::builder().build().unwrap();
-    let _ = endpoint
+    endpoint
         .stream(&client)
         .try_for_each_concurrent(10, |platform: types::Platform| {
             println!("{}", platform.name);
