@@ -6,7 +6,7 @@
     missing_docs
 )]
 #![warn(clippy::all)]
-#![allow(broken_intra_doc_links)]
+#![allow(rustdoc::broken_intra_doc_links)]
 
 //! This crate implements a wrapper for the Speedrun.com REST API.
 //!
