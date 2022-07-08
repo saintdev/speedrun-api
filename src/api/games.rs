@@ -194,7 +194,7 @@ pub struct GameCategories<'a> {
     #[doc = r"Sort direction."]
     #[builder(default)]
     direction: Option<Direction>,
-    #[builder(setter(name = "_embed"), private)]
+    #[builder(setter(name = "_embed"), private, default)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     embed: BTreeSet<CategoryEmbeds>,
@@ -209,8 +209,8 @@ impl<'a> GameCategoriesBuilder<'a> {
 
     /// Add multiple embedded resources to this result
     pub fn embeds<I>(&mut self, iter: I) -> &mut Self
-        where
-            I: Iterator<Item = CategoryEmbeds>,
+    where
+        I: Iterator<Item = CategoryEmbeds>,
     {
         self.embed.get_or_insert_with(BTreeSet::new).extend(iter);
         self
