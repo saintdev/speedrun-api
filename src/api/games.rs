@@ -194,7 +194,6 @@ pub struct GameCategories<'a> {
     #[doc = r"Sort direction."]
     #[builder(default)]
     direction: Option<Direction>,
-
     #[builder(setter(name = "_embed"), private)]
     #[serde(serialize_with = "super::utils::serialize_as_csv")]
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
@@ -217,7 +216,6 @@ impl<'a> GameCategoriesBuilder<'a> {
         self
     }
 }
-
 
 /// Retrieves all levels for the given game.
 #[derive(Debug, Builder, Serialize, Clone)]
