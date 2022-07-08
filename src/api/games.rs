@@ -7,13 +7,12 @@ use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 use http::Method;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use crate::api::categories::CategoryEmbeds;
 
 use super::{
-    developers::DeveloperId, endpoint::Endpoint, engines::EngineId, error::BodyError,
-    gametypes::GameTypeId, genres::GenreId, leaderboards::LeaderboardEmbeds, platforms::PlatformId,
-    publishers::PublisherId, regions::RegionId, users::UserId, CategoriesSorting, Direction,
-    Pageable, VariablesSorting,
+    categories::CategoryEmbeds, developers::DeveloperId, endpoint::Endpoint, engines::EngineId,
+    error::BodyError, gametypes::GameTypeId, genres::GenreId, leaderboards::LeaderboardEmbeds,
+    platforms::PlatformId, publishers::PublisherId, regions::RegionId, users::UserId,
+    CategoriesSorting, Direction, Pageable, VariablesSorting,
 };
 
 /// Embeds available for games
