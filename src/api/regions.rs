@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::{endpoint::Endpoint, Direction, Pageable};
 
 /// Represents a region ID.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct RegionId<'a>(Cow<'a, str>);
 
 impl<'a> RegionId<'a> {

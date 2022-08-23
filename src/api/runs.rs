@@ -141,7 +141,7 @@ pub enum NewStatus {
 }
 
 /// Represents a run ID.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct RunId<'a>(Cow<'a, str>);
 
 impl<'a> RunId<'a> {

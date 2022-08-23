@@ -19,7 +19,7 @@ pub enum PlatformsSorting {
 }
 
 /// Represents a platform ID.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct PlatformId<'a>(Cow<'a, str>);
 
 impl<'a> PlatformId<'a> {

@@ -17,7 +17,7 @@ pub enum PublishersSorting {
 }
 
 /// Represents a publisher ID.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct PublisherId<'a>(Cow<'a, str>);
 
 impl<'a> PublisherId<'a> {

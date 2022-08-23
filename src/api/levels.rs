@@ -21,7 +21,7 @@ pub enum LevelEmbeds {
 }
 
 /// Represents a level ID.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct LevelId<'a>(Cow<'a, str>);
 
 impl<'a> LevelId<'a> {

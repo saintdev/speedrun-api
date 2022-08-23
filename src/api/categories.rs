@@ -24,7 +24,7 @@ pub enum CategoryEmbeds {
 }
 
 /// Represents a category ID
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct CategoryId<'a>(Cow<'a, str>);
 
 impl<'a> CategoryId<'a> {

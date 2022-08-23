@@ -18,7 +18,7 @@ pub enum DevelopersSorting {
 }
 
 /// Represents a developer ID.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct DeveloperId<'a>(Cow<'a, str>);
 
 impl<'a> DeveloperId<'a> {

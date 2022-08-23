@@ -18,7 +18,7 @@ pub enum GenresSorting {
 }
 
 /// Represents a genre ID.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct GenreId<'a>(Cow<'a, str>);
 
 impl<'a> GenreId<'a> {

@@ -18,7 +18,7 @@ pub enum EnginesSorting {
 }
 
 /// Represents an engine ID.
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct EngineId<'a>(Cow<'a, str>);
 
 impl<'a> EngineId<'a> {

@@ -56,7 +56,7 @@ pub enum SeriesGamesBuilderError {
 }
 
 /// Represents a series ID
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq, Eq, Hash)]
 pub struct SeriesId<'a>(Cow<'a, str>);
 
 impl<'a> SeriesId<'a> {

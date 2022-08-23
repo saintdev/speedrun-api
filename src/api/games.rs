@@ -101,7 +101,7 @@ pub enum GameDerivedGamesBuilderError {
 }
 
 /// Represents a game ID
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct GameId<'a>(Cow<'a, str>);
 
 impl<'a> GameId<'a> {

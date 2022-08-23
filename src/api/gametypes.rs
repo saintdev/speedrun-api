@@ -18,7 +18,7 @@ pub enum GameTypesSorting {
 }
 
 /// Represents a game type ID
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct GameTypeId<'a>(Cow<'a, str>);
 
 impl<'a> GameTypeId<'a> {
