@@ -57,6 +57,7 @@ pub struct VideoLink {
 #[serde(tag = "status")]
 pub enum Status<'a> {
     New,
+    #[serde(rename_all = "kebab-case")]
     Verified {
         examiner: Option<UserId<'a>>,
         verify_date: Option<String>,
