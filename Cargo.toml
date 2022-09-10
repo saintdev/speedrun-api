@@ -1,6 +1,6 @@
 [package]
 name = "speedrun-api"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["Nathan Caldwell <saintdev@gmail.com>"]
 edition = "2018"
 description = "A wrapper for the speedrun.com REST API"
