@@ -62,6 +62,7 @@ mod endpoint;
 mod error;
 mod pagination;
 mod query;
+mod query_params;
 mod utils;
 
 pub mod categories;
