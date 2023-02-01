@@ -84,9 +84,9 @@ pub mod series;
 pub mod users;
 pub mod variables;
 
+pub use crate::types::Root;
 pub use client::{AsyncClient, Client, RestClient};
 pub use common::{CategoriesSorting, Direction, VariablesSorting};
 pub use error::ApiError;
 pub use pagination::{Pageable, PagedEndpointExt, PagedIter, SinglePage, SinglePageBuilder};
 pub use query::AsyncQuery;
-pub use crate::types::Root;
