@@ -267,7 +267,7 @@ impl Endpoint for FullGameLeaderboard<'_> {
         params.extend(
             self.variables
                 .iter()
-                .map(|(var, val)| format!("var-{}={}", var, val)),
+                .map(|(var, val)| format!("var-{var}={val}")),
         );
 
         Ok(params.join("&").into())
@@ -297,7 +297,7 @@ impl Endpoint for IndividualLevelLeaderboard<'_> {
         params.extend(
             self.variables
                 .iter()
-                .map(|(var, val)| format!("var-{}={}", var, val)),
+                .map(|(var, val)| format!("var-{var}={val}")),
         );
 
         Ok(params.join("&").into())

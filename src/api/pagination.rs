@@ -138,7 +138,7 @@ where
             let mut pairs = url.query_pairs_mut();
             pairs.append_pair("offset", &format!("{}", &self.offset));
             if let Some(max) = self.max {
-                pairs.append_pair("max", &format!("{}", max));
+                pairs.append_pair("max", &format!("{max}"));
             }
         }
         Ok(url)

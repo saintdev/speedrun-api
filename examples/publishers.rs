@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Publisher::builder().id("1z6qgr9p").build().unwrap();
     let publisher: types::Publisher = endpoint.query_async(&client).await?;
-    println!("{:#?}", publisher);
+    println!("{publisher:#?}");
 
     Ok(())
 }

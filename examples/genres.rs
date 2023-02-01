@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Genre::builder().id("qdnqyk28").build().unwrap();
     let genre: types::Genre = endpoint.query_async(&client).await?;
-    println!("{:#?}", genre);
+    println!("{genre:#?}");
 
     Ok(())
 }

@@ -27,7 +27,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Region::builder().id("pr184lqn").build().unwrap();
     let region: types::Region = endpoint.query_async(&client).await?;
-    println!("{:#?}", region);
+    println!("{region:#?}");
 
     Ok(())
 }

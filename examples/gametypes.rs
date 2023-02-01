@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = GameType::builder().id("d91jd1ex").build().unwrap();
     let game_type: types::GameType = endpoint.query_async(&client).await?;
-    println!("{:#?}", game_type);
+    println!("{game_type:#?}");
 
     Ok(())
 }

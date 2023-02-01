@@ -18,7 +18,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
     // documentation.
     let endpoint = Level::builder().id("329vpn9v").build().unwrap();
     let level: types::Level = endpoint.query_async(&client).await?;
-    println!("{:#?}", level);
+    println!("{level:#?}");
 
     // This level ID does not exist, however this is the example used in the API
     // documentation.
@@ -26,20 +26,20 @@ pub async fn main() -> SpeedrunApiResult<()> {
     builder.id("329vpn9v");
     let endpoint = builder.build().unwrap();
     let categories: Vec<types::Category> = endpoint.query_async(&client).await?;
-    println!("{:#?}", categories);
+    println!("{categories:#?}");
     let endpoint = builder.miscellaneous(false).build().unwrap();
     let categories: Vec<types::Category> = endpoint.query_async(&client).await?;
-    println!("{:#?}", categories);
+    println!("{categories:#?}");
 
     let endpoint = LevelVariables::builder().id("495ggmwp").build().unwrap();
     let variables: Vec<types::Variable> = endpoint.query_async(&client).await?;
-    println!("{:#?}", variables);
+    println!("{variables:#?}");
 
     // This level ID does not exist, however this is the example used in the API
     // documentation.
     let endpoint = LevelRecords::builder().id("rdnyx79m").build().unwrap();
     let records: Vec<types::Leaderboard> = endpoint.stream(&client).take(20).try_collect().await?;
-    println!("{:#?}", records);
+    println!("{records:#?}");
 
     Ok(())
 }

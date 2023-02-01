@@ -39,11 +39,11 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = User::builder().id("wzx7q875").build().unwrap();
     let user: types::User = endpoint.query_async(&client).await?;
-    println!("{:#?}", user);
+    println!("{user:#?}");
 
     let endpoint = UserPersonalBests::builder().id("wzx7q875").build().unwrap();
     let runs: Vec<types::RankedRun> = endpoint.query_async(&client).await?;
-    println!("{:#?}", runs);
+    println!("{runs:#?}");
 
     Ok(())
 }

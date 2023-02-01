@@ -12,7 +12,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Variable::builder().id("ylpm6vlg").build().unwrap();
     let variable: types::Variable = endpoint.query_async(&client).await?;
-    println!("{:#?}", variable);
+    println!("{variable:#?}");
 
     Ok(())
 }

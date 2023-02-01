@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Engine::builder().id("p85eo036").build().unwrap();
     let engine: types::Engine = endpoint.query_async(&client).await?;
-    println!("{:#?}", engine);
+    println!("{engine:#?}");
 
     Ok(())
 }

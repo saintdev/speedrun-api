@@ -14,7 +14,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
     // documentation.
     let endpoint = Guest::builder().name("Alex").build().unwrap();
     let guest: types::Guest = endpoint.query_async(&client).await?;
-    println!("{:#?}", guest);
+    println!("{guest:#?}");
 
     Ok(())
 }

@@ -29,7 +29,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
     // documentation.
     let endpoint = Platform::builder().id("rdjq4vwe").build().unwrap();
     let platform: types::Platform = endpoint.query_async(&client).await?;
-    println!("{:#?}", platform);
+    println!("{platform:#?}");
 
     Ok(())
 }

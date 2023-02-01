@@ -51,7 +51,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Series::builder().id("rv7emz49").build().unwrap();
     let series: types::Series = endpoint.query_async(&client).await?;
-    println!("{:#?}", series);
+    println!("{series:#?}");
 
     let mut builder = SeriesGames::builder();
     let endpoint = builder.id("rv7emz49").build().unwrap();

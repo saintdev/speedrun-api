@@ -80,7 +80,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Run::builder().id("90y6pm7e").build().unwrap();
     let run: types::Run = endpoint.query_async(&client).await?;
-    println!("{:#?}", run);
+    println!("{run:#?}");
 
     Ok(())
 }

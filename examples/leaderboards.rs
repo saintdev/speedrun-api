@@ -21,7 +21,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
         .build()
         .unwrap();
     let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
-    println!("{:#?}", leaderboard);
+    println!("{leaderboard:#?}");
 
     let endpoint = FullGameLeaderboard::builder()
         .game("n4d7jzd7")
@@ -30,7 +30,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
         .build()
         .unwrap();
     let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
-    println!("{:#?}", leaderboard);
+    println!("{leaderboard:#?}");
 
     // This game/category combonation does not exist, however this is the
     // example used by the API documentation.
@@ -42,7 +42,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
         .build()
         .unwrap();
     let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
-    println!("{:#?}", leaderboard);
+    println!("{leaderboard:#?}");
 
     // This game/level/category combonation does not exist, however this is the
     // example used by the API documentation.
@@ -53,7 +53,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
         .build()
         .unwrap();
     let leaderboard: types::Leaderboard = endpoint.query_async(&client).await?;
-    println!("{:#?}", leaderboard);
+    println!("{leaderboard:#?}");
 
     Ok(())
 }

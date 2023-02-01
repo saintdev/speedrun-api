@@ -28,7 +28,7 @@ pub async fn main() -> SpeedrunApiResult<()> {
 
     let endpoint = Developer::builder().id("l4eprzro").build().unwrap();
     let developer: types::Developer = endpoint.query_async(&client).await?;
-    println!("{:#?}", developer);
+    println!("{developer:#?}");
 
     Ok(())
 }
