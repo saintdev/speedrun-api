@@ -1,15 +1,15 @@
+use crate::types::Root;
 use async_trait::async_trait;
 use futures::{stream::BoxStream, StreamExt, TryStreamExt};
-use http::{header, Request};
 use serde::de::DeserializeOwned;
-use crate::types::Root;
 
 use crate::types::Pagination;
 
 use super::{
-    ApiError,
-    AsyncClient,
-    Client, endpoint::Endpoint, query::{self, AsyncQuery, Query}, RestClient,
+    endpoint::Endpoint,
+    query::{AsyncQuery, Query},
+    utils::build_paged_request,
+    ApiError, AsyncClient, Client, RestClient,
 };
 
 // TODO: Use provided "next" link for pagination
@@ -57,7 +57,7 @@ pub struct SinglePageBuilder<'a, E> {
 /// Represents a single page of elements.
 #[derive(Debug)]
 pub struct SinglePage<'a, E> {
-    inner: &'a E,
+    pub(crate) inner: &'a E,
     offset: usize,
     max: Option<usize>,
 }
@@ -131,7 +131,10 @@ where
         SinglePageBuilder::new(paged)
     }
 
-    fn page_url<C: RestClient>(&self, client: &C) -> Result<url::Url, ApiError<C::Error>> {
+    pub(crate) fn page_url<C: RestClient>(
+        &self,
+        client: &C,
+    ) -> Result<url::Url, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.inner.endpoint())?;
         self.inner.set_query_parameters(&mut url)?;
         {
@@ -153,20 +156,7 @@ where
     E: Endpoint + Pageable + Sync,
 {
     async fn query_async(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
-        let url = self.page_url(client)?;
-
-        let body = self.inner.body()?;
-
-        let req = Request::builder()
-            .method(self.inner.method())
-            .uri(query::url_to_http_uri(url));
-
-        let (req, data) = if let Some((mime, data)) = body.as_ref() {
-            let req = req.header(header::CONTENT_TYPE, *mime);
-            (req, data.clone())
-        } else {
-            (req, Vec::new())
-        };
+        let (req, data) = build_paged_request(self, client)?;
 
         let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
@@ -269,20 +259,7 @@ where
     C: Client,
 {
     fn query(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
-        let url = self.page_url(client)?;
-
-        let body = self.inner.body()?;
-
-        let req = Request::builder()
-            .method(self.inner.method())
-            .uri(query::url_to_http_uri(url));
-
-        let (req, data) = if let Some((mime, data)) = body.as_ref() {
-            let req = req.header(header::CONTENT_TYPE, *mime);
-            (req, data.clone())
-        } else {
-            (req, Vec::new())
-        };
+        let (req, data) = build_paged_request(self, client)?;
 
         let rsp = client.rest(req, data)?;
         let status = rsp.status();

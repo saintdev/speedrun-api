@@ -1,15 +1,16 @@
 use std::borrow::Cow;
 
+use crate::types::Root;
 use async_trait::async_trait;
-use http::{header, Method, Request};
+use http::Method;
 use log::debug;
 use serde::de::DeserializeOwned;
-use crate::types::Root;
 
 use super::{
-    ApiError,
-    AsyncClient,
-    Client, error::BodyError, query::{self, AsyncQuery, Query},
+    error::BodyError,
+    query::{AsyncQuery, Query},
+    utils::build_request,
+    ApiError, AsyncClient, Client,
 };
 
 pub trait Endpoint {
@@ -49,21 +50,8 @@ where
     C: Client,
 {
     fn query(&self, client: &C) -> Result<T, super::ApiError<C::Error>> {
-        if self.requires_authentication() && !client.has_api_key() {
-            return Err(ApiError::RequiresAuthentication);
-        }
-        let mut url = client.rest_endpoint(&self.endpoint())?;
-        self.set_query_parameters(&mut url)?;
+        let (req, data) = build_request(self, client)?;
 
-        let req = Request::builder()
-            .method(self.method())
-            .uri(query::url_to_http_uri(url));
-        let (req, data) = if let Some((mime, data)) = self.body()? {
-            let req = req.header(header::CONTENT_TYPE, mime);
-            (req, data)
-        } else {
-            (req, Vec::new())
-        };
         let rsp = client.rest(req, data)?;
         let status = rsp.status();
         let value = serde_json::from_slice(rsp.body())?;
@@ -85,21 +73,7 @@ where
     C: AsyncClient + Sync,
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
-        if self.requires_authentication() && !client.has_api_key() {
-            return Err(ApiError::RequiresAuthentication);
-        }
-        let mut url = client.rest_endpoint(&self.endpoint())?;
-        self.set_query_parameters(&mut url)?;
-
-        let req = Request::builder()
-            .method(self.method())
-            .uri(query::url_to_http_uri(url));
-        let (req, data) = if let Some((mime, data)) = self.body()? {
-            let req = req.header(header::CONTENT_TYPE, mime);
-            (req, data)
-        } else {
-            (req, Vec::new())
-        };
+        let (req, data) = build_request(self, client)?;
 
         let rsp = client.rest_async(req, data).await?;
         let status = rsp.status();
