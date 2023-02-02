@@ -110,28 +110,28 @@ pub struct UserPersonalBests<'a> {
     embed: BTreeSet<RunEmbeds>,
 }
 
-impl<'a> Users<'a> {
+impl Users<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> UsersBuilder<'a> {
+    pub fn builder<'a>() -> UsersBuilder<'a> {
         UsersBuilder::default()
     }
 }
 
-impl<'a> User<'a> {
+impl User<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> UserBuilder<'a> {
+    pub fn builder<'a>() -> UserBuilder<'a> {
         UserBuilder::default()
     }
 }
 
-impl<'a> UserPersonalBests<'a> {
+impl UserPersonalBests<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> UserPersonalBestsBuilder<'a> {
+    pub fn builder<'a>() -> UserPersonalBestsBuilder<'a> {
         UserPersonalBestsBuilder::default()
     }
 }
 
-impl<'a> UserPersonalBestsBuilder<'a> {
+impl UserPersonalBestsBuilder<'_> {
     /// Add an embedded resource to this result.
     pub fn embed(&mut self, embed: RunEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);

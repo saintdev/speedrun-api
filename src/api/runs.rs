@@ -318,14 +318,14 @@ pub struct DeleteRun<'a> {
     id: RunId<'a>,
 }
 
-impl<'a> Runs<'a> {
+impl Runs<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> RunsBuilder<'a> {
+    pub fn builder<'a>() -> RunsBuilder<'a> {
         RunsBuilder::default()
     }
 }
 
-impl<'a> RunsBuilder<'a> {
+impl RunsBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: RunEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -342,16 +342,16 @@ impl<'a> RunsBuilder<'a> {
     }
 }
 
-impl<'a> Run<'a> {
+impl Run<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> RunBuilder<'a> {
+    pub fn builder<'a>() -> RunBuilder<'a> {
         RunBuilder::default()
     }
 }
 
-impl<'a> CreateRun<'a> {
+impl CreateRun<'_> {
     /// Create a builder for this endpoint
-    pub fn buider() -> CreateRunBuilder<'a> {
+    pub fn buider<'a>() -> CreateRunBuilder<'a> {
         CreateRunBuilder::default()
     }
 }
@@ -407,16 +407,16 @@ impl<'a> CreateRunBuilder<'a> {
     }
 }
 
-impl<'a> UpdateRunStatus<'a> {
+impl UpdateRunStatus<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> UpdateRunStatusBuilder<'a> {
+    pub fn builder<'a>() -> UpdateRunStatusBuilder<'a> {
         UpdateRunStatusBuilder::default()
     }
 }
 
-impl<'a> UpdateRunPlayers<'a> {
+impl UpdateRunPlayers<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> UpdateRunPlayersBuilder<'a> {
+    pub fn builder<'a>() -> UpdateRunPlayersBuilder<'a> {
         UpdateRunPlayersBuilder::default()
     }
 }
@@ -438,9 +438,9 @@ impl<'a> UpdateRunPlayersBuilder<'a> {
     }
 }
 
-impl<'a> DeleteRun<'a> {
+impl DeleteRun<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> DeleteRunBuilder<'a> {
+    pub fn builder<'a>() -> DeleteRunBuilder<'a> {
         DeleteRunBuilder::default()
     }
 }

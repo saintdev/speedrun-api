@@ -74,9 +74,9 @@ pub struct Variable<'a> {
     id: VariableId<'a>,
 }
 
-impl<'a> Variable<'a> {
+impl Variable<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> VariableBuilder<'a> {
+    pub fn builder<'a>() -> VariableBuilder<'a> {
         VariableBuilder::default()
     }
 }

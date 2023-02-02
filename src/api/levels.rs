@@ -117,14 +117,14 @@ pub struct LevelRecords<'a> {
     embed: BTreeSet<LeaderboardEmbeds>,
 }
 
-impl<'a> Level<'a> {
+impl Level<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> LevelBuilder<'a> {
+    pub fn builder<'a>() -> LevelBuilder<'a> {
         LevelBuilder::default()
     }
 }
 
-impl<'a> LevelBuilder<'a> {
+impl LevelBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: LevelEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -141,28 +141,28 @@ impl<'a> LevelBuilder<'a> {
     }
 }
 
-impl<'a> LevelCategories<'a> {
+impl LevelCategories<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> LevelCategoriesBuilder<'a> {
+    pub fn builder<'a>() -> LevelCategoriesBuilder<'a> {
         LevelCategoriesBuilder::default()
     }
 }
 
-impl<'a> LevelVariables<'a> {
+impl LevelVariables<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> LevelVariablesBuilder<'a> {
+    pub fn builder<'a>() -> LevelVariablesBuilder<'a> {
         LevelVariablesBuilder::default()
     }
 }
 
-impl<'a> LevelRecords<'a> {
+impl LevelRecords<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> LevelRecordsBuilder<'a> {
+    pub fn builder<'a>() -> LevelRecordsBuilder<'a> {
         LevelRecordsBuilder::default()
     }
 }
 
-impl<'a> LevelRecordsBuilder<'a> {
+impl LevelRecordsBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);

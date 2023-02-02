@@ -102,14 +102,14 @@ pub struct CategoryRecords<'a> {
     embed: BTreeSet<LeaderboardEmbeds>,
 }
 
-impl<'a> Category<'a> {
+impl Category<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> CategoryBuilder<'a> {
+    pub fn builder<'a>() -> CategoryBuilder<'a> {
         CategoryBuilder::default()
     }
 }
 
-impl<'a> CategoryBuilder<'a> {
+impl CategoryBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: CategoryEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -126,21 +126,21 @@ impl<'a> CategoryBuilder<'a> {
     }
 }
 
-impl<'a> CategoryVariables<'a> {
+impl CategoryVariables<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> CategoryVariablesBuilder<'a> {
+    pub fn builder<'a>() -> CategoryVariablesBuilder<'a> {
         CategoryVariablesBuilder::default()
     }
 }
 
-impl<'a> CategoryRecords<'a> {
+impl CategoryRecords<'_> {
     /// Create a builder for this endpoint
-    pub fn builder() -> CategoryRecordsBuilder<'a> {
+    pub fn builder<'a>() -> CategoryRecordsBuilder<'a> {
         CategoryRecordsBuilder::default()
     }
 }
 
-impl<'a> CategoryRecordsBuilder<'a> {
+impl CategoryRecordsBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);

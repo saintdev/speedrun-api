@@ -137,9 +137,9 @@ pub struct IndividualLevelLeaderboard<'a> {
     embed: BTreeSet<LeaderboardEmbeds>,
 }
 
-impl<'a> FullGameLeaderboard<'a> {
+impl FullGameLeaderboard<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> FullGameLeaderboardBuilder<'a> {
+    pub fn builder<'a>() -> FullGameLeaderboardBuilder<'a> {
         FullGameLeaderboardBuilder::default()
     }
 }
@@ -186,9 +186,9 @@ impl<'a> FullGameLeaderboardBuilder<'a> {
     }
 }
 
-impl<'a> IndividualLevelLeaderboard<'a> {
+impl IndividualLevelLeaderboard<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> IndividualLevelLeaderboardBuilder<'a> {
+    pub fn builder<'a>() -> IndividualLevelLeaderboardBuilder<'a> {
         IndividualLevelLeaderboardBuilder::default()
     }
 }

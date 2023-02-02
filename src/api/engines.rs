@@ -72,9 +72,9 @@ impl Engines {
     }
 }
 
-impl<'a> Engine<'a> {
+impl Engine<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> EngineBuilder<'a> {
+    pub fn builder<'a>() -> EngineBuilder<'a> {
         EngineBuilder::default()
     }
 }

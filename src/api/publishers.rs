@@ -71,9 +71,9 @@ impl Publishers {
     }
 }
 
-impl<'a> Publisher<'a> {
+impl Publisher<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> PublisherBuilder<'a> {
+    pub fn builder<'a>() -> PublisherBuilder<'a> {
         PublisherBuilder::default()
     }
 }

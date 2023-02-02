@@ -61,9 +61,9 @@ impl Regions {
     }
 }
 
-impl<'a> Region<'a> {
+impl Region<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> RegionBuilder<'a> {
+    pub fn builder<'a>() -> RegionBuilder<'a> {
         RegionBuilder::default()
     }
 }

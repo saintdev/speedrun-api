@@ -130,14 +130,14 @@ pub struct SeriesGamesBuilder<'a> {
     inner: GamesBuilder<'a>,
 }
 
-impl<'a> ListSeries<'a> {
+impl ListSeries<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> ListSeriesBuilder<'a> {
+    pub fn builder<'a>() -> ListSeriesBuilder<'a> {
         ListSeriesBuilder::default()
     }
 }
 
-impl<'a> ListSeriesBuilder<'a> {
+impl ListSeriesBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: SeriesEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -154,16 +154,16 @@ impl<'a> ListSeriesBuilder<'a> {
     }
 }
 
-impl<'a> Series<'a> {
+impl Series<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> SeriesBuilder<'a> {
+    pub fn builder<'a>() -> SeriesBuilder<'a> {
         SeriesBuilder::default()
     }
 }
 
-impl<'a> SeriesGames<'a> {
+impl SeriesGames<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> SeriesGamesBuilder<'a> {
+    pub fn builder<'a>() -> SeriesGamesBuilder<'a> {
         SeriesGamesBuilder::default()
     }
 }

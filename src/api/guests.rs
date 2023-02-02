@@ -14,9 +14,9 @@ pub struct Guest<'a> {
     name: Cow<'a, str>,
 }
 
-impl<'a> Guest<'a> {
+impl Guest<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GuestBuilder<'a> {
+    pub fn builder<'a>() -> GuestBuilder<'a> {
         GuestBuilder::default()
     }
 }

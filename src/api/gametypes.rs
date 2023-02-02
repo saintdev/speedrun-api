@@ -72,9 +72,9 @@ impl GameTypes {
     }
 }
 
-impl<'a> GameType<'a> {
+impl GameType<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameTypeBuilder<'a> {
+    pub fn builder<'a>() -> GameTypeBuilder<'a> {
         GameTypeBuilder::default()
     }
 }

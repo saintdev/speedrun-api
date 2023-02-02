@@ -200,7 +200,7 @@ pub struct GameCategories<'a> {
     embed: BTreeSet<CategoryEmbeds>,
 }
 
-impl<'a> GameCategoriesBuilder<'a> {
+impl GameCategoriesBuilder<'_> {
     /// Add an embedded resource to this result
     pub fn embed(&mut self, embed: CategoryEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -289,14 +289,14 @@ pub struct GameRecords<'a> {
     embed: BTreeSet<LeaderboardEmbeds>,
 }
 
-impl<'a> Games<'a> {
+impl Games<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GamesBuilder<'a> {
+    pub fn builder<'a>() -> GamesBuilder<'a> {
         GamesBuilder::default()
     }
 }
 
-impl<'a> GamesBuilder<'a> {
+impl GamesBuilder<'_> {
     /// Add an embedded resource to this result.
     pub fn embed(&mut self, embed: GameEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);
@@ -313,30 +313,30 @@ impl<'a> GamesBuilder<'a> {
     }
 }
 
-impl<'a> Game<'a> {
+impl Game<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameBuilder<'a> {
+    pub fn builder<'a>() -> GameBuilder<'a> {
         GameBuilder::default()
     }
 }
 
-impl<'a> GameCategories<'a> {
+impl GameCategories<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameCategoriesBuilder<'a> {
+    pub fn builder<'a>() -> GameCategoriesBuilder<'a> {
         GameCategoriesBuilder::default()
     }
 }
 
-impl<'a> GameLevels<'a> {
+impl GameLevels<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameLevelsBuilder<'a> {
+    pub fn builder<'a>() -> GameLevelsBuilder<'a> {
         GameLevelsBuilder::default()
     }
 }
 
-impl<'a> GameVariables<'a> {
+impl GameVariables<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameVariablesBuilder<'a> {
+    pub fn builder<'a>() -> GameVariablesBuilder<'a> {
         GameVariablesBuilder::default()
     }
 }
@@ -495,21 +495,21 @@ impl<'a> GameDerivedGamesBuilder<'a> {
     }
 }
 
-impl<'a> GameDerivedGames<'a> {
+impl GameDerivedGames<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameDerivedGamesBuilder<'a> {
+    pub fn builder<'a>() -> GameDerivedGamesBuilder<'a> {
         GameDerivedGamesBuilder::default()
     }
 }
 
-impl<'a> GameRecords<'a> {
+impl GameRecords<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GameRecordsBuilder<'a> {
+    pub fn builder<'a>() -> GameRecordsBuilder<'a> {
         GameRecordsBuilder::default()
     }
 }
 
-impl<'a> GameRecordsBuilder<'a> {
+impl GameRecordsBuilder<'_> {
     /// Add an embedded resource to this result.
     pub fn embed(&mut self, embed: LeaderboardEmbeds) -> &mut Self {
         self.embed.get_or_insert_with(BTreeSet::new).insert(embed);

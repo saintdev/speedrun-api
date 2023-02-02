@@ -72,9 +72,9 @@ impl Genres {
     }
 }
 
-impl<'a> Genre<'a> {
+impl Genre<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> GenreBuilder<'a> {
+    pub fn builder<'a>() -> GenreBuilder<'a> {
         GenreBuilder::default()
     }
 }

@@ -74,9 +74,9 @@ impl Platforms {
     }
 }
 
-impl<'a> Platform<'a> {
+impl Platform<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> PlatformBuilder<'a> {
+    pub fn builder<'a>() -> PlatformBuilder<'a> {
         PlatformBuilder::default()
     }
 }

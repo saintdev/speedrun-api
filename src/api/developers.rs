@@ -72,9 +72,9 @@ impl Developers {
     }
 }
 
-impl<'a> Developer<'a> {
+impl Developer<'_> {
     /// Create a builder for this endpoint.
-    pub fn builder() -> DeveloperBuilder<'a> {
+    pub fn builder<'a>() -> DeveloperBuilder<'a> {
         DeveloperBuilder::default()
     }
 }
