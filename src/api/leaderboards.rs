@@ -20,6 +20,7 @@ use super::{
     games::GameId,
     levels::LevelId,
     platforms::PlatformId,
+    query_params::QueryParams,
     regions::RegionId,
     variables::{ValueId, VariableId},
 };
@@ -257,20 +258,14 @@ impl Endpoint for FullGameLeaderboard<'_> {
         format!("/leaderboards/{}/category/{}", self.game, self.category).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        let mut params = Vec::new();
-        let urlencoded = serde_urlencoded::to_string(self)?;
-        if !urlencoded.is_empty() {
-            params.push(urlencoded);
-        }
-
-        params.extend(
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        let mut params = QueryParams::with(self)?;
+        params.extend_pairs(
             self.variables
                 .iter()
-                .map(|(var, val)| format!("var-{var}={val}")),
+                .map(|(var, val)| (format!("var-{var}"), val.to_string())),
         );
-
-        Ok(params.join("&").into())
+        Ok(params)
     }
 }
 
@@ -287,20 +282,14 @@ impl Endpoint for IndividualLevelLeaderboard<'_> {
         .into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        let mut params = Vec::new();
-        let urlencoded = serde_urlencoded::to_string(self)?;
-        if !urlencoded.is_empty() {
-            params.push(urlencoded);
-        }
-
-        params.extend(
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        let mut params = QueryParams::with(self)?;
+        params.extend_pairs(
             self.variables
                 .iter()
-                .map(|(var, val)| format!("var-{var}={val}")),
+                .map(|(var, val)| (format!("var-{var}"), val.to_string())),
         );
-
-        Ok(params.join("&").into())
+        Ok(params)
     }
 }
 

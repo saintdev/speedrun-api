@@ -2,12 +2,12 @@ use std::borrow::Cow;
 
 use async_trait::async_trait;
 use http::Method;
-use log::debug;
 use serde::de::DeserializeOwned;
 
 use super::{
     error::BodyError,
     query::{AsyncQuery, Query},
+    query_params::QueryParams,
     utils::{build_request, deserialize_response},
     ApiError, AsyncClient, Client,
 };
@@ -15,22 +15,11 @@ use super::{
 pub trait Endpoint {
     fn method(&self) -> Method;
     fn endpoint(&self) -> Cow<'static, str>;
-    fn set_query_parameters(&self, url: &mut url::Url) -> Result<(), BodyError> {
-        let old_query: Vec<(String, String)> = url.query_pairs().into_owned().collect();
-        debug!("old query: {:?}", old_query);
-        let query = self.query_parameters()?;
-        debug!("new query: {}", query);
-        if !query.is_empty() {
-            url.set_query(Some(query.as_ref()));
-            if !old_query.is_empty() {
-                url.query_pairs_mut().extend_pairs(old_query);
-            }
-        }
-        Ok(())
+
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        Ok(QueryParams::default())
     }
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(Cow::default())
-    }
+
     fn body(&self) -> Result<Option<(&'static str, Vec<u8>)>, BodyError> {
         Ok(None)
     }

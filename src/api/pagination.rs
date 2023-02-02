@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use futures::{stream::BoxStream, StreamExt, TryStreamExt};
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 
 use crate::types::Pagination;
 
@@ -54,8 +54,9 @@ pub struct SinglePageBuilder<'a, E> {
 }
 
 /// Represents a single page of elements.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SinglePage<'a, E> {
+    #[serde(skip)]
     pub(crate) inner: &'a E,
     offset: usize,
     max: Option<usize>,
@@ -135,14 +136,11 @@ where
         client: &C,
     ) -> Result<url::Url, ApiError<C::Error>> {
         let mut url = client.rest_endpoint(&self.inner.endpoint())?;
-        self.inner.set_query_parameters(&mut url)?;
-        {
-            let mut pairs = url.query_pairs_mut();
-            pairs.append_pair("offset", &format!("{}", &self.offset));
-            if let Some(max) = self.max {
-                pairs.append_pair("max", &format!("{max}"));
-            }
-        }
+
+        let mut params = self.inner.query_parameters()?;
+        params.extend_from(&self)?;
+        params.apply_to(&mut url);
+
         Ok(url)
     }
 }

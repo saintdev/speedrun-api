@@ -13,9 +13,11 @@ use serde::{Deserialize, Serialize};
 use super::{
     categories::CategoryId,
     endpoint::Endpoint,
+    error::BodyError,
     games::GameId,
     levels::LevelId,
     platforms::PlatformId,
+    query_params::QueryParams,
     regions::RegionId,
     users::UserId,
     variables::{ValueId, VariableId},
@@ -471,8 +473,8 @@ impl Endpoint for Runs<'_> {
         "/runs".into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 

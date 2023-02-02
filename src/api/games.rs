@@ -11,8 +11,8 @@ use thiserror::Error;
 use super::{
     categories::CategoryEmbeds, developers::DeveloperId, endpoint::Endpoint, engines::EngineId,
     error::BodyError, gametypes::GameTypeId, genres::GenreId, leaderboards::LeaderboardEmbeds,
-    platforms::PlatformId, publishers::PublisherId, regions::RegionId, users::UserId,
-    CategoriesSorting, Direction, Pageable, VariablesSorting,
+    platforms::PlatformId, publishers::PublisherId, query_params::QueryParams, regions::RegionId,
+    users::UserId, CategoriesSorting, Direction, Pageable, VariablesSorting,
 };
 
 /// Embeds available for games
@@ -559,8 +559,8 @@ impl Endpoint for Games<'_> {
         "games".into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -583,8 +583,8 @@ impl Endpoint for GameCategories<'_> {
         format!("/games/{}/categories", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -597,8 +597,8 @@ impl Endpoint for GameLevels<'_> {
         format!("/games/{}/levels", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -611,8 +611,8 @@ impl Endpoint for GameVariables<'_> {
         format!("/games/{}/variables", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -625,8 +625,8 @@ impl Endpoint for GameDerivedGames<'_> {
         format!("/games/{}/derived-games", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(&self.inner)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(&self.inner)
     }
 }
 
@@ -639,8 +639,8 @@ impl Endpoint for GameRecords<'_> {
         format!("/games/{}/records", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 

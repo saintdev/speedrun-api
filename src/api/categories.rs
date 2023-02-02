@@ -8,8 +8,8 @@ use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{
-    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds, Direction, Pageable,
-    VariablesSorting,
+    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds,
+    query_params::QueryParams, Direction, Pageable, VariablesSorting,
 };
 
 /// Embeds available for categories.
@@ -175,8 +175,8 @@ impl Endpoint for Category<'_> {
         format!("/categories/{}", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -189,8 +189,8 @@ impl Endpoint for CategoryVariables<'_> {
         format!("/categories/{}/variables", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -203,8 +203,8 @@ impl Endpoint for CategoryRecords<'_> {
         format!("/categories/{}/records", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 

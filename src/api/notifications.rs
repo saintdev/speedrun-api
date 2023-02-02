@@ -4,7 +4,7 @@
 use http::Method;
 use serde::Serialize;
 
-use super::{endpoint::Endpoint, Direction};
+use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction};
 
 /// Sorting options for notifications
 #[derive(Debug, Clone, Serialize, Copy)]
@@ -46,8 +46,8 @@ impl Endpoint for Notifications {
         "notifications".into()
     }
 
-    fn query_parameters(&self) -> Result<std::borrow::Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 
     fn requires_authentication(&self) -> bool {

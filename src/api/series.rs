@@ -11,11 +11,13 @@ use super::{
     developers::DeveloperId,
     endpoint::Endpoint,
     engines::EngineId,
+    error::BodyError,
     games::{Games, GamesBuilder, GamesBuilderError, GamesSorting},
     gametypes::GameTypeId,
     genres::GenreId,
     platforms::PlatformId,
     publishers::PublisherId,
+    query_params::QueryParams,
     regions::RegionId,
     users::UserId,
     Direction, Pageable,
@@ -332,8 +334,8 @@ impl Endpoint for ListSeries<'_> {
         "/series".into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -356,8 +358,8 @@ impl Endpoint for SeriesGames<'_> {
         format!("/series/{}/games", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(&self.inner)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(&self.inner)
     }
 }
 

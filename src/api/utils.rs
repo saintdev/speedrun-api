@@ -57,7 +57,7 @@ where
         return Err(ApiError::RequiresAuthentication);
     }
 
-    endpoint.set_query_parameters(&mut url)?;
+    endpoint.query_parameters()?.apply_to(&mut url);
 
     let req = RequestBuilder::new()
         .method(endpoint.method())

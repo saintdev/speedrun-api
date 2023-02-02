@@ -6,7 +6,7 @@ use std::{borrow::Cow, fmt::Display};
 use http::Method;
 use serde::{Deserialize, Serialize};
 
-use super::{endpoint::Endpoint, Direction, Pageable};
+use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction, Pageable};
 
 /// Sorting options for publisher
 #[derive(Debug, Serialize, Clone, Copy)]
@@ -93,8 +93,8 @@ impl Endpoint for Publishers {
         "/publishers".into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 

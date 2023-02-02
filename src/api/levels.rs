@@ -7,8 +7,8 @@ use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{
-    endpoint::Endpoint, leaderboards::LeaderboardEmbeds, CategoriesSorting, Direction, Pageable,
-    VariablesSorting,
+    endpoint::Endpoint, error::BodyError, leaderboards::LeaderboardEmbeds,
+    query_params::QueryParams, CategoriesSorting, Direction, Pageable, VariablesSorting,
 };
 
 /// Embeds available for levels.
@@ -197,8 +197,8 @@ impl Endpoint for Level<'_> {
         format!("/levels/{}", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -211,8 +211,8 @@ impl Endpoint for LevelCategories<'_> {
         format!("/levels/{}/categories", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -225,8 +225,8 @@ impl Endpoint for LevelVariables<'_> {
         format!("/levels/{}/variables", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
@@ -239,8 +239,8 @@ impl Endpoint for LevelRecords<'_> {
         format!("/levels/{}/records", self.id).into()
     }
 
-    fn query_parameters(&self) -> Result<Cow<'static, str>, super::error::BodyError> {
-        Ok(serde_urlencoded::to_string(self)?.into())
+    fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {
+        QueryParams::with(self)
     }
 }
 
