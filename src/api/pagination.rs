@@ -1,4 +1,3 @@
-use crate::types::Root;
 use async_trait::async_trait;
 use futures::{stream::BoxStream, StreamExt, TryStreamExt};
 use serde::de::DeserializeOwned;
@@ -8,7 +7,7 @@ use crate::types::Pagination;
 use super::{
     endpoint::Endpoint,
     query::{AsyncQuery, Query},
-    utils::build_paged_request,
+    utils::{build_paged_request, deserialize_response},
     ApiError, AsyncClient, Client, RestClient,
 };
 
@@ -158,17 +157,13 @@ where
     async fn query_async(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
         let (req, data) = build_paged_request(self, client)?;
 
+        let url = req.uri_ref().cloned().unwrap_or_default();
+
         let rsp = client.rest_async(req, data).await?;
-        let status = rsp.status();
 
-        let value = serde_json::from_slice(rsp.body())?;
-        if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(value));
-        }
-
-        serde_json::from_value::<Root<Vec<T>>>(value)
+        deserialize_response::<_, C>(rsp)
             .map(|value| (value.data, value.pagination.unwrap_or_default()))
-            .map_err(ApiError::data_type::<Vec<T>>)
+            .map_err(|err| ApiError::from_http_response(err, url))
     }
 }
 
@@ -261,16 +256,12 @@ where
     fn query(&self, client: &C) -> Result<(Vec<T>, Pagination), ApiError<C::Error>> {
         let (req, data) = build_paged_request(self, client)?;
 
+        let url = req.uri_ref().cloned().unwrap_or_default();
+
         let rsp = client.rest(req, data)?;
-        let status = rsp.status();
 
-        let value = serde_json::from_slice(rsp.body())?;
-        if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(value));
-        }
-
-        serde_json::from_value::<Root<Vec<T>>>(value)
+        deserialize_response::<_, C>(rsp)
             .map(|value| (value.data, value.pagination.unwrap_or_default()))
-            .map_err(ApiError::data_type::<Vec<T>>)
+            .map_err(|err| ApiError::from_http_response(err, url))
     }
 }

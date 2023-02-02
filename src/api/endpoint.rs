@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 
-use crate::types::Root;
 use async_trait::async_trait;
 use http::Method;
 use log::debug;
@@ -9,7 +8,7 @@ use serde::de::DeserializeOwned;
 use super::{
     error::BodyError,
     query::{AsyncQuery, Query},
-    utils::build_request,
+    utils::{build_request, deserialize_response},
     ApiError, AsyncClient, Client,
 };
 
@@ -52,16 +51,13 @@ where
     fn query(&self, client: &C) -> Result<T, super::ApiError<C::Error>> {
         let (req, data) = build_request(self, client)?;
 
-        let rsp = client.rest(req, data)?;
-        let status = rsp.status();
-        let value = serde_json::from_slice(rsp.body())?;
-        if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(value));
-        }
+        let url = req.uri_ref().cloned().unwrap_or_default();
 
-        serde_json::from_value::<Root<T>>(value)
-            .map(|root| root.data)
-            .map_err(ApiError::data_type::<T>)
+        let rsp = client.rest(req, data)?;
+
+        deserialize_response::<_, C>(rsp)
+            .map(|value| value.data)
+            .map_err(|err| ApiError::from_http_response(err, url))
     }
 }
 
@@ -74,16 +70,12 @@ where
 {
     async fn query_async(&self, client: &C) -> Result<T, ApiError<C::Error>> {
         let (req, data) = build_request(self, client)?;
+        let url = req.uri_ref().cloned().unwrap_or_default();
 
         let rsp = client.rest_async(req, data).await?;
-        let status = rsp.status();
-        let value = serde_json::from_slice(rsp.body())?;
-        if !status.is_success() {
-            return Err(ApiError::from_speedrun_api(value));
-        }
 
-        serde_json::from_value::<Root<T>>(value)
+        deserialize_response::<_, C>(rsp)
             .map(|value| value.data)
-            .map_err(ApiError::data_type::<T>)
+            .map_err(|err| ApiError::from_http_response(err, url))
     }
 }

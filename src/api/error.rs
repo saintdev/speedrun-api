@@ -1,6 +1,8 @@
-use std::{any, error::Error};
+use std::{error::Error};
 
 use thiserror::Error;
+
+use super::utils::ResponseError;
 
 /// Errors that occur when creating form data.
 #[derive(Debug, Error)]
@@ -26,29 +28,20 @@ where
     /// The client encountered an error.
     #[error("client error: {0}")]
     Client(E),
-    /// JSON deserialization failed
-    #[error("failed to parse JSON: {0}")]
-    Json(#[from] serde_json::Error),
     /// The URL failed to parse.
     #[error("url parse error: {0}")]
     Parse(#[from] url::ParseError),
-    /// Speedrun.com returned an error
-    #[error("Speedrun.com server error: {0}")]
-    SpeedrunApi(String),
-    /// Speedrun.com returned an unknown error
-    #[error("Unknown speedrun.com server error: {0:?}")]
-    Unknown(serde_json::Value),
-    /// Failed parsing data type from JSON
-    #[error("Parsing type {} from JSON: {}", typename, source)]
-    DataType {
-        /// The source of the error
-        source: serde_json::Error,
-        /// The name of the type that could not be deserialized.
-        typename: &'static str,
-    },
     /// The endpoint requires an API key to use, but none was provided.
     #[error("Endpoint requires authentication, but no API key was provided")]
     RequiresAuthentication,
+    /// Error in the HTTP response
+    #[error("Error in the HTTP response at url [{url}]: source")]
+    Response {
+        /// Source of the error
+        source: ResponseError,
+        /// URL of the error
+        url: http::Uri,
+    },
 }
 
 impl<E> ApiError<E>
@@ -60,23 +53,7 @@ where
         Self::Client(source)
     }
 
-    pub(crate) fn from_speedrun_api(val: serde_json::Value) -> Self {
-        // let val = val.pointer("/message");
-        if let Some(val) = val.pointer("/message") {
-            if let Some(msg) = val.as_str() {
-                Self::SpeedrunApi(msg.into())
-            } else {
-                Self::Unknown(val.clone())
-            }
-        } else {
-            Self::Unknown(val.clone())
-        }
-    }
-
-    pub(crate) fn data_type<T>(source: serde_json::Error) -> Self {
-        Self::DataType {
-            source,
-            typename: any::type_name::<T>(),
-        }
+    pub(crate) fn from_http_response(source: ResponseError, url: http::Uri) -> Self {
+        Self::Response { source, url }
     }
 }
