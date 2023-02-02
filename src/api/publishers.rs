@@ -3,7 +3,6 @@
 //! Endpoints available for publishers.
 use std::{borrow::Cow, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction, Pageable};
@@ -85,10 +84,6 @@ impl Default for PublishersSorting {
 }
 
 impl Endpoint for Publishers {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "/publishers".into()
     }
@@ -99,10 +94,6 @@ impl Endpoint for Publishers {
 }
 
 impl Endpoint for Publisher<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/publishers/{}", self.id).into()
     }

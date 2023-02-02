@@ -3,7 +3,6 @@
 //! Endpoints available for series.
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -326,10 +325,6 @@ impl Default for SeriesSorting {
 }
 
 impl Endpoint for ListSeries<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "/series".into()
     }
@@ -340,20 +335,12 @@ impl Endpoint for ListSeries<'_> {
 }
 
 impl Endpoint for Series<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/series/{}", self.id).into()
     }
 }
 
 impl Endpoint for SeriesGames<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/series/{}/games", self.id).into()
     }

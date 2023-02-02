@@ -3,7 +3,6 @@
 //! Endpoints available for variables
 use std::{borrow::Cow, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::endpoint::Endpoint;
@@ -82,10 +81,6 @@ impl Variable<'_> {
 }
 
 impl Endpoint for Variable<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/variables/{}", self.id).into()
     }

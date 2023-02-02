@@ -1,7 +1,6 @@
 //! # Profile
 //!
 //! Endpoints available for the current user's profile.
-use http::Method;
 
 use super::endpoint::Endpoint;
 
@@ -18,10 +17,6 @@ impl Profile {
 }
 
 impl Endpoint for Profile {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "/profile".into()
     }

@@ -7,7 +7,6 @@ use std::{
     collections::{BTreeSet, HashMap},
 };
 
-use http::Method;
 use serde::Serialize;
 
 use crate::{
@@ -250,10 +249,6 @@ impl LeaderboardEmbeds {
 }
 
 impl Endpoint for FullGameLeaderboard<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/leaderboards/{}/category/{}", self.game, self.category).into()
     }
@@ -270,10 +265,6 @@ impl Endpoint for FullGameLeaderboard<'_> {
 }
 
 impl Endpoint for IndividualLevelLeaderboard<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!(
             "/leaderboards/{}/level/{}/{}",

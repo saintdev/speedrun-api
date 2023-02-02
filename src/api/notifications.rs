@@ -1,7 +1,7 @@
 //! # Notifications
 //!
 //! Endpoints available for notifications.
-use http::Method;
+
 use serde::Serialize;
 
 use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction};
@@ -38,10 +38,6 @@ impl Default for NotificationsSorting {
 }
 
 impl Endpoint for Notifications {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "notifications".into()
     }

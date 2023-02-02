@@ -3,7 +3,7 @@
 //! Endpoints available for guests
 
 use crate::api::endpoint::Endpoint;
-use http::Method;
+
 use std::borrow::Cow;
 
 /// Retrieves a guest identified by their name.
@@ -22,10 +22,6 @@ impl Guest<'_> {
 }
 
 impl Endpoint for Guest<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/guests/{}", self.name).into()
     }

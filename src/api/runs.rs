@@ -465,10 +465,6 @@ impl Default for RunsSorting {
 }
 
 impl Endpoint for Runs<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "/runs".into()
     }
@@ -479,10 +475,6 @@ impl Endpoint for Runs<'_> {
 }
 
 impl Endpoint for Run<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/runs/{}", self.id).into()
     }

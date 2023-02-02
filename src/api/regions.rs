@@ -3,7 +3,6 @@
 //! Endpoints available for regions.
 use std::{borrow::Cow, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction, Pageable};
@@ -69,10 +68,6 @@ impl Region<'_> {
 }
 
 impl Endpoint for Regions {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "/regions".into()
     }
@@ -83,10 +78,6 @@ impl Endpoint for Regions {
 }
 
 impl Endpoint for Region<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/regions/{}", self.id).into()
     }

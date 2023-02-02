@@ -13,7 +13,10 @@ use super::{
 };
 
 pub trait Endpoint {
-    fn method(&self) -> Method;
+    fn method(&self) -> Method {
+        Method::GET
+    }
+
     fn endpoint(&self) -> Cow<'static, str>;
 
     fn query_parameters(&self) -> Result<QueryParams<'_>, BodyError> {

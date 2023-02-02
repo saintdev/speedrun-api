@@ -4,7 +4,6 @@
 
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -551,10 +550,6 @@ impl Default for LevelsSorting {
 }
 
 impl Endpoint for Games<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "games".into()
     }
@@ -565,20 +560,12 @@ impl Endpoint for Games<'_> {
 }
 
 impl Endpoint for Game<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}", self.id).into()
     }
 }
 
 impl Endpoint for GameCategories<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}/categories", self.id).into()
     }
@@ -589,10 +576,6 @@ impl Endpoint for GameCategories<'_> {
 }
 
 impl Endpoint for GameLevels<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}/levels", self.id).into()
     }
@@ -603,10 +586,6 @@ impl Endpoint for GameLevels<'_> {
 }
 
 impl Endpoint for GameVariables<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}/variables", self.id).into()
     }
@@ -617,10 +596,6 @@ impl Endpoint for GameVariables<'_> {
 }
 
 impl Endpoint for GameDerivedGames<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}/derived-games", self.id).into()
     }
@@ -631,10 +606,6 @@ impl Endpoint for GameDerivedGames<'_> {
 }
 
 impl Endpoint for GameRecords<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/games/{}/records", self.id).into()
     }

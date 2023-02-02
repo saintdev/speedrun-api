@@ -4,7 +4,6 @@
 
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -167,10 +166,6 @@ impl CategoryEmbeds {
 }
 
 impl Endpoint for Category<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/categories/{}", self.id).into()
     }
@@ -181,10 +176,6 @@ impl Endpoint for Category<'_> {
 }
 
 impl Endpoint for CategoryVariables<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/categories/{}/variables", self.id).into()
     }
@@ -195,10 +186,6 @@ impl Endpoint for CategoryVariables<'_> {
 }
 
 impl Endpoint for CategoryRecords<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/categories/{}/records", self.id).into()
     }

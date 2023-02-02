@@ -3,7 +3,6 @@
 //! Endpoints available for levels.
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -189,10 +188,6 @@ impl LevelEmbeds {
 }
 
 impl Endpoint for Level<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/levels/{}", self.id).into()
     }
@@ -203,10 +198,6 @@ impl Endpoint for Level<'_> {
 }
 
 impl Endpoint for LevelCategories<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/levels/{}/categories", self.id).into()
     }
@@ -217,10 +208,6 @@ impl Endpoint for LevelCategories<'_> {
 }
 
 impl Endpoint for LevelVariables<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/levels/{}/variables", self.id).into()
     }
@@ -231,10 +218,6 @@ impl Endpoint for LevelVariables<'_> {
 }
 
 impl Endpoint for LevelRecords<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/levels/{}/records", self.id).into()
     }

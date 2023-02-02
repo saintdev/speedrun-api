@@ -3,7 +3,6 @@
 //! Endpoints available for users
 use std::{borrow::Cow, collections::BTreeSet, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{
@@ -155,10 +154,6 @@ impl Default for UsersSorting {
 }
 
 impl Endpoint for Users<'_> {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "/users".into()
     }
@@ -169,20 +164,12 @@ impl Endpoint for Users<'_> {
 }
 
 impl Endpoint for User<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/users/{}", self.id).into()
     }
 }
 
 impl Endpoint for UserPersonalBests<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/users/{}/personal-bests", self.id).into()
     }

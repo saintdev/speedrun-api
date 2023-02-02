@@ -4,7 +4,6 @@
 
 use std::{borrow::Cow, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction, Pageable};
@@ -86,10 +85,6 @@ impl Default for GameTypesSorting {
 }
 
 impl Endpoint for GameTypes {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         "/gametypes".into()
     }
@@ -100,10 +95,6 @@ impl Endpoint for GameTypes {
 }
 
 impl Endpoint for GameType<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/gametypes/{}", self.id).into()
     }

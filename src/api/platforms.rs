@@ -3,7 +3,6 @@
 //! Endpoints available for platforms.
 use std::{borrow::Cow, fmt::Display};
 
-use http::Method;
 use serde::{Deserialize, Serialize};
 
 use super::{endpoint::Endpoint, error::BodyError, query_params::QueryParams, Direction, Pageable};
@@ -88,10 +87,6 @@ impl Default for PlatformsSorting {
 }
 
 impl Endpoint for Platforms {
-    fn method(&self) -> http::Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> std::borrow::Cow<'static, str> {
         "/platforms".into()
     }
@@ -102,10 +97,6 @@ impl Endpoint for Platforms {
 }
 
 impl Endpoint for Platform<'_> {
-    fn method(&self) -> Method {
-        Method::GET
-    }
-
     fn endpoint(&self) -> Cow<'static, str> {
         format!("/platforms/{}", self.id).into()
     }
