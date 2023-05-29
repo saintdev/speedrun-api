@@ -87,12 +87,11 @@ pub enum ResponseError {
     },
 }
 
-pub(crate) fn deserialize_response<T, C>(
+pub(crate) fn deserialize_response<T>(
     rsp: http::Response<Bytes>,
 ) -> Result<Root<T>, ResponseError>
 where
     T: DeserializeOwned,
-    C: RestClient,
 {
     let status = rsp.status();
     let value = serde_json::from_slice(rsp.body())?;

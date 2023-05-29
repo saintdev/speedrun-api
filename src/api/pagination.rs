@@ -159,7 +159,7 @@ where
 
         let rsp = client.rest_async(req, data).await?;
 
-        deserialize_response::<_, C>(rsp)
+        deserialize_response::<_>(rsp)
             .map(|value| (value.data, value.pagination.unwrap_or_default()))
             .map_err(|err| ApiError::from_http_response(err, url))
     }
@@ -258,7 +258,7 @@ where
 
         let rsp = client.rest(req, data)?;
 
-        deserialize_response::<_, C>(rsp)
+        deserialize_response::<_>(rsp)
             .map(|value| (value.data, value.pagination.unwrap_or_default()))
             .map_err(|err| ApiError::from_http_response(err, url))
     }
