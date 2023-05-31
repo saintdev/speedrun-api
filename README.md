@@ -30,7 +30,7 @@ use speedrun_api::{
 #[tokio::main]
 pub async fn main() -> SpeedrunApiResult<()> {
     // Create a new async client
-    let client = SpeedrunApiBuilder::new().build_async()?;?;
+    let client = SpeedrunApiBuilder::new().build_async()?;
 
     // Build a new endpoint
     // This gets the "All Campaigns" leaderboard for Age of Empires II.
