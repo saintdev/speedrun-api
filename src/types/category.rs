@@ -12,7 +12,7 @@ pub struct Category<'a> {
     pub weblink: String,
     #[serde(rename = "type")]
     pub type_field: CategoryType,
-    pub rules: String,
+    pub rules: Option<String>,
     pub players: Players,
     pub miscellaneous: bool,
     pub links: Vec<Link>,
